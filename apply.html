@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apply to Acquire — The Sage and the Staff</title>
+
+  <style>
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('fonts/JetBrainsMono-Bold.woff2') format('woff2');
+    }
+
+    :root {
+      --void-bg: #030712;
+      --panel-bg: rgba(11, 20, 39, 0.85);
+      --cyan-dim: rgba(6, 182, 212, 0.15);
+      --cyan-mid: rgba(6, 182, 212, 0.4);
+      --cyan-bright: #06b6d4;
+      --border-color: rgba(6, 182, 212, 0.15);
+      --text-body: #c8d0dc;
+      --text-dim: #94a3b8;
+      --text-bright: #e2e8f0;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --font-serif: "Georgia", "Times New Roman", serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: var(--void-bg);
+      color: var(--text-body);
+      font-family: var(--font-serif);
+      overflow-x: hidden;
+      line-height: 1.9;
+      font-size: 17px;
+    }
+
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(6, 182, 212, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 0%, #030712 85%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .page {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 40px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--cyan-bright);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .back-link:hover { opacity: 1; }
+
+    .form-header {
+      text-align: center;
+      padding: 80px 0 48px;
+    }
+
+    .relic-photo {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      margin: 0 auto 32px;
+      display: block;
+    }
+
+    .relic-name {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .relic-price {
+      font-family: var(--font-mono);
+      font-size: 1.4rem;
+      color: var(--cyan-bright);
+      font-weight: 700;
+    }
+
+    .form-container {
+      padding: 48px 0 120px;
+    }
+
+    .field {
+      margin-bottom: 32px;
+    }
+
+    .field label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--cyan-bright);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      opacity: 0.8;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      background: rgba(6, 182, 212, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-bright);
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      padding: 14px 16px;
+      outline: none;
+      transition: border-color 0.3s;
+      line-height: 1.7;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: var(--cyan-mid);
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: #334155;
+    }
+
+    .field textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    .submit-row {
+      text-align: center;
+      padding-top: 16px;
+    }
+
+    .submit-btn {
+      display: inline-block;
+      padding: 16px 44px;
+      background: rgba(6, 182, 212, 0.08);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: #22d3ee;
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .submit-btn:hover {
+      background: rgba(6, 182, 212, 0.15);
+      border-color: #22d3ee;
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.2);
+      color: white;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .confirmation {
+      display: none;
+      text-align: center;
+      padding: 80px 0;
+    }
+
+    .confirmation.visible {
+      display: block;
+    }
+
+    .confirmation p {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .or-divider {
+      text-align: center;
+      padding: 32px 0;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: #334155;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .x-link {
+      display: block;
+      text-align: center;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      text-decoration: none;
+      letter-spacing: 0.05em;
+      transition: color 0.3s;
+    }
+
+    .x-link:hover { color: var(--cyan-bright); }
+
+    footer {
+      text-align: center;
+      padding: 80px 0 60px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #334155;
+      letter-spacing: 0.1em;
+      line-height: 2;
+    }
+
+    @media (max-width: 640px) {
+      body { font-size: 15px; }
+      .form-header { padding: 60px 0 36px; }
+      .page { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="vignette"></div>
+
+  <div class="page">
+
+    <a href="/" class="back-link">&larr; Return to the novel</a>
+
+    <section class="form-header">
+      <img src="images/staff-bag.jpg" alt="The Sage Staff of Revolution" class="relic-photo">
+      <div class="relic-name">The Sage Staff of Revolution</div>
+      <div class="relic-price">$100,000</div>
+    </section>
+
+    <section class="form-container" id="form-container">
+      <form id="inquiry-form">
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+
+        <div class="field">
+          <label for="contact">Contact</label>
+          <input type="text" id="contact" name="contact" required placeholder="">
+        </div>
+
+        <div class="field">
+          <label for="why-you">Why you.</label>
+          <textarea id="why-you" name="why_you"></textarea>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="submit-btn">Submit Application</button>
+        </div>
+      </form>
+
+      <div class="or-divider">— or reach out directly —</div>
+      <a href="https://x.com/sifumazz" target="_blank" rel="noopener" class="x-link">@sifumazz on X</a>
+    </section>
+
+    <section class="confirmation" id="confirmation">
+      <p>Received. The sage will be in touch.</p>
+    </section>
+
+    <footer>
+      Charlemagne<br>
+      Mazzizax Fleet<br>
+      2026
+    </footer>
+
+  </div>
+
+  <script>
+    document.getElementById('inquiry-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      var name = document.getElementById('name').value.trim();
+      var contact = document.getElementById('contact').value.trim();
+      var whyYou = document.getElementById('why-you').value.trim();
+
+      // Store locally and send via mailto as fallback
+      var application = {
+        name: name,
+        contact: contact,
+        why_you: whyYou,
+        relic: 'The Sage Staff of Revolution',
+        submitted: new Date().toISOString()
+      };
+
+      // Store in localStorage as backup
+      var apps = JSON.parse(localStorage.getItem('relic_applications') || '[]');
+      apps.push(application);
+      localStorage.setItem('relic_applications', JSON.stringify(apps));
+
+      // Compose mailto
+      var subject = encodeURIComponent('Application: The Sage Staff of Revolution — ' + name);
+      var body = encodeURIComponent(
+        'Name: ' + name + '\n' +
+        'Contact: ' + contact + '\n' +
+        'Relic: The Sage Staff of Revolution\n\n' +
+        'Why you:\n' + whyYou + '\n\n' +
+        'Submitted: ' + application.submitted
+      );
+
+      window.location.href = 'mailto:sifumazz@gmail.com?subject=' + subject + '&body=' + body;
+
+      // Show confirmation
+      document.getElementById('form-container').style.display = 'none';
+      document.getElementById('confirmation').classList.add('visible');
+    });
+  </script>
+</body>
+</html>

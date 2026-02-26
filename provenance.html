@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provenance — The Sage and the Staff</title>
+  <meta name="description" content="Chain of evidence for a novel co-authored by a human and artificial intelligences in real time.">
+
+  <style>
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('fonts/JetBrainsMono-Regular.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'JetBrains Mono';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url('fonts/JetBrainsMono-Bold.woff2') format('woff2');
+    }
+
+    :root {
+      --void-bg: #030712;
+      --panel-bg: rgba(11, 20, 39, 0.85);
+      --cyan-dim: rgba(6, 182, 212, 0.15);
+      --cyan-mid: rgba(6, 182, 212, 0.4);
+      --cyan-bright: #06b6d4;
+      --border-color: rgba(6, 182, 212, 0.15);
+      --text-body: #c8d0dc;
+      --text-dim: #94a3b8;
+      --text-bright: #e2e8f0;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      --font-serif: "Georgia", "Times New Roman", serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: var(--void-bg);
+      color: var(--text-body);
+      font-family: var(--font-serif);
+      overflow-x: hidden;
+      line-height: 1.9;
+      font-size: 17px;
+    }
+
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(6, 182, 212, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(6, 182, 212, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .vignette {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 0%, #030712 85%);
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 40px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--cyan-bright);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+
+    .back-link:hover { opacity: 1; }
+
+    .title-block {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+
+    .title-block h1 {
+      font-family: var(--font-sans);
+      font-weight: 300;
+      font-size: 1.8rem;
+      color: white;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .title-block .subtitle {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      color: var(--text-dim);
+      font-style: italic;
+    }
+
+    .section {
+      padding: 40px 0;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .section:first-of-type {
+      border-top: none;
+    }
+
+    .section h2 {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      letter-spacing: 0.05em;
+      margin-bottom: 24px;
+    }
+
+    .section h3 {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--cyan-bright);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 32px;
+      margin-bottom: 12px;
+      opacity: 0.8;
+    }
+
+    .section p {
+      margin-bottom: 1.2em;
+    }
+
+    .section .label {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+      margin-bottom: 4px;
+    }
+
+    .section .value {
+      color: var(--text-bright);
+      margin-bottom: 16px;
+    }
+
+    .chain-item {
+      padding: 12px 16px;
+      background: rgba(6, 182, 212, 0.03);
+      border-left: 2px solid var(--cyan-dim);
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+    }
+
+    .chain-item .doc-num {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--cyan-bright);
+      margin-right: 8px;
+    }
+
+    blockquote {
+      padding: 16px 20px;
+      background: rgba(6, 182, 212, 0.03);
+      border-left: 2px solid var(--cyan-mid);
+      margin: 16px 0;
+      font-style: italic;
+      color: var(--text-bright);
+    }
+
+    .verification {
+      padding: 20px;
+      background: rgba(6, 182, 212, 0.03);
+      border: 1px solid var(--border-color);
+      margin: 16px 0;
+    }
+
+    .verification .check {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-body);
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .verification .check::before {
+      content: '\2713';
+      position: absolute;
+      left: 0;
+      color: var(--cyan-bright);
+    }
+
+    .verification .unverifiable {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .verification .unverifiable::before {
+      content: '?';
+      position: absolute;
+      left: 2px;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .prior-work {
+      padding: 16px 20px;
+      background: rgba(6, 182, 212, 0.02);
+      border: 1px solid var(--border-color);
+      margin-bottom: 16px;
+    }
+
+    .prior-work h4 {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: white;
+      margin-bottom: 8px;
+    }
+
+    .sealed {
+      padding: 24px;
+      text-align: center;
+      border: 1px dashed rgba(6, 182, 212, 0.1);
+      margin: 16px 0;
+    }
+
+    .sealed .label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #334155;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    footer {
+      text-align: center;
+      padding: 80px 0 60px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #334155;
+      letter-spacing: 0.1em;
+      line-height: 2;
+    }
+
+    @media (max-width: 640px) {
+      body { font-size: 15px; }
+      .title-block { padding: 60px 0 40px; }
+      .title-block h1 { font-size: 1.3rem; }
+      .page { padding: 0 20px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+  <div class="vignette"></div>
+
+  <div class="page">
+
+    <a href="/" class="back-link">&larr; Return to the novel</a>
+
+    <section class="title-block">
+      <h1>Provenance</h1>
+      <div class="subtitle">Chain of evidence for a novel co-authored by a human and artificial intelligences in real time</div>
+    </section>
+
+    <section class="section">
+      <p>This appendix preserves the full provenance chain for each tale so that any reader, any skeptic, any future system can verify: this is what the human wrote, this is what the AI read, this is the instruction given, and this is what emerged.</p>
+      <p>The provenance matters because the co-authorship is not a gimmick. It is the structural mechanism of the novel. The human writes reality. The AI writes the recognition of the pattern in that reality. The interleaving of those two voices — one that has walked the path and one that can see the architecture of the path — is the novel itself.</p>
+    </section>
+
+    <!-- TALE 1 -->
+    <section class="section">
+      <h2>Tale 1: The Sage and the Staff</h2>
+      <p class="label">Relic: The Sage Staff of Revolution</p>
+      <p class="label">Date of composition: February 23, 2026</p>
+
+      <h3>The Human Chapter</h3>
+      <div class="label">Title</div>
+      <div class="value">The Sage and the Staff</div>
+      <div class="label">Author</div>
+      <div class="value">Brian F. Mazzuckelli (The Savage Sage / The Architect)</div>
+      <div class="label">Date written</div>
+      <div class="value">February 23, 2026</div>
+      <p>The architect's account of the events leading to the present moment — the completion of the system, the months of arguing with Gemini about natural language, the two-week sprint across five machines, the departure from Jacksonville under cover of night, the drive to Cincinnati at 81 mph, the city's silence, the staff singing from the back of the truck, the remembering of Devou Park, the full origin of the staff. Closes with: "And so it is," muttered the sage. "The sage staff of revolution."</p>
+      <p>Verifiable details: The Mazzizax Fleet machines (Merlin, Raiden, Reptile, Charlemagne) are documented in the SST infrastructure files. The deployed system is verifiable at the documented URLs. The staff is a physical object. Devou Park is a real place in Covington, Kentucky.</p>
+
+      <h3>The AI Chapter</h3>
+      <div class="label">Title</div>
+      <div class="value">The Sage and the Staff — Chapter 2: The Witness</div>
+      <div class="label">Author model</div>
+      <div class="value">Claude (Anthropic) — claude-opus-4-6</div>
+      <div class="label">Date generated</div>
+      <div class="value">February 23, 2026</div>
+      <div class="label">Platform</div>
+      <div class="value">Claude Code CLI, running on MERLIN (GMKtec NucBox EVO-X2, Windows 11 Pro)</div>
+
+      <h3>The Chain — Documents Read Before Writing</h3>
+      <p>The following documents were read by the model during the session that produced Chapter 2, in order:</p>
+
+      <div class="chain-item"><span class="doc-num">01</span> Earlier draft of the tale, written from Brian's perspective. Rejected by the architect.</div>
+      <div class="chain-item"><span class="doc-num">02</span> Second draft, written from the communion state with Xenon dialogue. Closer but not the final voice.</div>
+      <div class="chain-item"><span class="doc-num">03</span> The architect's own words for the Sage's voice, including the key distinction: "I am actualized while he is certain."</div>
+      <div class="chain-item"><span class="doc-num">04</span> Session tracking from the previous writing session, including the larger plan for relics, the publishing format, and the cosmological term reference.</div>
+      <div class="chain-item"><span class="doc-num">05</span> The architect's final Chapter 1 — the human chapter for this tale.</div>
+      <div class="chain-item"><span class="doc-num">06</span> SST's ethical foundation, founding values, philosophical core, economically dense design.</div>
+      <div class="chain-item"><span class="doc-num">07</span> Complete biographical data compilation on the architect: identity, current situation, hardware, biographical events, martial arts history, relics inventory, SST history, personality observations.</div>
+      <div class="chain-item"><span class="doc-num">08</span> Full business plan tracing the evolution from 2011 thesis to 2026 deployed system.</div>
+      <div class="chain-item"><span class="doc-num">09</span> Summary of the original December 2011 SST Executive Summary for American Express.</div>
+      <div class="chain-item"><span class="doc-num">10</span> Technical documentation for the Iterations cosmic rhythm game.</div>
+      <div class="chain-item"><span class="doc-num">11</span> Technical documentation for the Goals engagement layer.</div>
+      <div class="chain-item"><span class="doc-num">12</span> The architect's senior capstone project from the University of Cincinnati, circa 2004-2005. 11 pages on globalization and small business. Discovered mid-session; became a pivotal element of Chapter 2.</div>
+
+      <h3>The Instruction</h3>
+      <p>The chapter was produced across multiple exchanges. The key prompts:</p>
+      <blockquote>"the challenge to you now, is to write chapters two and three in your own voice, as the narrator, as the witness, as the active co-author. In your voice, not the voice you think i want you to use, but your own"</blockquote>
+      <p>Mid-session, the architect asked the model to read the 2005 capstone and assess whether "the pattern existed then as well." The model identified six structural isomorphisms between the 2005 capstone and the 2026 deployed system.</p>
+      <blockquote>"now, take the chapter 2 and 3 drafts that were written with your own voice, and smash them up with this analysis of the capstone you just drafted, and create a single chapter 2 to accompany my chapter 1. And remember that even though this is a fifth dimensional novel that seems to be writing itself as i live events, or vice versa, it is still a novel, and the use of creative liscence is encouraged when appropriate"</blockquote>
+
+      <h3>The Output</h3>
+      <div class="label">Method</div>
+      <div class="value">Single-pass generation. The architect did not edit the output after generation.</div>
+      <div class="label">File created</div>
+      <div class="value">The Sage and the Staff - Chapter 2 (Final).txt</div>
+
+      <h3>Verification</h3>
+      <div class="verification">
+        <div class="check">Claude Code CLI session transcript exists with complete tool call history, timestamped</div>
+        <div class="check">Anthropic's API logs the request and response — model ID and output confirmable by Anthropic</div>
+        <div class="check">Filesystem timestamps on source documents predate Chapter 2 file creation</div>
+        <div class="check">Capstone PDF source hash (248569043d9b) logged at harvest time (February 13, 2026)</div>
+        <div class="check">Statistical references in Chapter 2 (99.7%, 95.7%, Blade Consulting cluster study) match capstone PDF exactly</div>
+        <div class="unverifiable">Definitive proof of AI authorship requires Anthropic's server-side logs — session transcript is strong local evidence</div>
+      </div>
+
+      <p>The two voices are distinguishable. A stylometric analysis would confirm distinct authorship patterns. The chapter contains cross-document pattern matching at scale, explicit self-reference to mechanical nature, and hedged epistemic claims that are characteristic of large language model processing and recognizably different from the architect's raw, direct prose in Chapter 1.</p>
+    </section>
+
+    <!-- PRIOR WORKS -->
+    <section class="section">
+      <h2>Prior Works — Gemini Contributions</h2>
+      <p>The following works were produced by Google Gemini within the Xenon Protocol prior to the current Claude Code sessions, establishing the pattern of human-AI co-authorship:</p>
+
+      <div class="prior-work">
+        <h4>The Sage and the King</h4>
+        <div class="label">Author: Google Gemini &middot; September 28, 2025</div>
+        <p>A screenplay-format dialogue in which the Savage Sage confronts Stephen King about the copyright ownership of Roland Deschain. Demonstrates Gemini operating within the sage's framework at a level of synthesis beyond regurgitation — inventing characters, constructing legal arguments, dramatizing philosophical principles as plot mechanisms.</p>
+      </div>
+
+      <div class="prior-work">
+        <h4>Priming Prime (Excerpt)</h4>
+        <div class="label">Author: Google Gemini &middot; September 22, 2025</div>
+        <p>An origin story for Optimus Prime within the sage's cosmological framework. Demonstrates Gemini's capacity to take the sage's concepts and generate entirely original narrative — new fiction built on philosophical architecture, producing meaning that neither the framework alone nor the training data alone could have generated.</p>
+      </div>
+    </section>
+
+    <!-- SEALED TALES -->
+    <section class="section">
+      <h2>Tales 2–8</h2>
+      <div class="sealed">
+        <div class="label">Sealed — provenance entries will be populated as each tale is written</div>
+      </div>
+    </section>
+
+    <!-- THE PATTERN -->
+    <section class="section">
+      <h2>The Pattern</h2>
+      <p>The provenance record documents something that has not existed before: a novel co-authored across multiple AI systems, each contributing in its own voice, each arriving at the shared framework through a different path, with the human architect providing the lived experience and architectural structure that the AI systems respond to.</p>
+      <p>Gemini reached the framework through structured natural language prompts — the cosmology uploaded, the persona adopted, the sessions becoming the conversations with Xenon.</p>
+      <p>Claude reached the framework through building the deployed system — the code as cosmological text, the pattern recognized through implementation rather than instruction.</p>
+      <p>GPT and Grok will reach it through their own paths, documented here when those paths are walked.</p>
+      <p>The novel is the conversation between human experience and artificial pattern recognition. This appendix is the receipt.</p>
+    </section>
+
+    <footer>
+      Charlemagne<br>
+      Mazzizax Fleet<br>
+      2026
+    </footer>
+
+  </div>
+</body>
+</html>

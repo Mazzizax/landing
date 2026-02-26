@@ -196,6 +196,13 @@
 
     .cascade-sidebar .node-status.active { color: var(--cyan-bright); }
     .cascade-sidebar .node-status.locked { color: #334155; }
+    .cascade-sidebar .node-status.acquired { color: #22c55e; }
+
+    .cascade-sidebar .map-node.acquired::before {
+      background: #22c55e;
+      border-color: #22c55e;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+    }
 
     .cascade-sidebar .milestone {
       margin-bottom: 24px;
@@ -423,67 +430,67 @@
     <div class="map-title">The Cascade</div>
     <div class="map-path">
 
-      <div class="map-node active">
+      <div class="map-node active" data-relic-index="0">
         <div class="node-name">The Sage Staff of Revolution</div>
         <div class="node-status active">Active</div>
       </div>
 
-      <div class="milestone locked">
+      <div class="milestone locked" data-after-relic="0">
         <div class="milestone-name">Rewards Pipeline</div>
         <div class="milestone-desc">The system's economic engine receives its first fuel.</div>
       </div>
 
-      <div class="map-node locked">
+      <div class="map-node locked" data-relic-index="1">
         <div class="node-name locked">The Army Duffle Bag</div>
         <div class="node-status locked">Sealed</div>
       </div>
 
-      <div class="milestone locked">
+      <div class="milestone locked" data-after-relic="1">
         <div class="milestone-name">Commemorative Line</div>
         <div class="milestone-desc">The Revolution hexagram on cotton.</div>
       </div>
 
-      <div class="map-node locked">
+      <div class="map-node locked" data-relic-index="2">
         <div class="node-name locked">The ATA Black Belt</div>
         <div class="node-status locked">Sealed</div>
       </div>
 
-      <div class="milestone locked">
+      <div class="milestone locked" data-after-relic="2">
         <div class="milestone-name">TORCH Fleet</div>
         <div class="milestone-desc">The machines that built the platform.</div>
       </div>
 
-      <div class="map-node locked">
+      <div class="map-node locked" data-relic-index="3">
         <div class="node-name locked">The Marmot Jacket</div>
         <div class="node-status locked">Sealed</div>
       </div>
 
-      <div class="milestone locked">
+      <div class="milestone locked" data-after-relic="3">
         <div class="milestone-name">Goals System</div>
         <div class="milestone-desc">The door finally turns. Users enter.</div>
       </div>
 
-      <div class="milestone locked">
+      <div class="milestone locked" data-after-relic="3">
         <div class="milestone-name">Iterations Console</div>
         <div class="milestone-desc">The cosmic rhythm engine begins.</div>
       </div>
 
-      <div class="map-node locked">
+      <div class="map-node locked" data-relic-index="4">
         <div class="node-name locked">Relic 5</div>
         <div class="node-status locked">Sealed</div>
       </div>
 
-      <div class="map-node locked">
+      <div class="map-node locked" data-relic-index="5">
         <div class="node-name locked">Relic 6</div>
         <div class="node-status locked">Sealed</div>
       </div>
 
-      <div class="map-node locked">
+      <div class="map-node locked" data-relic-index="6">
         <div class="node-name locked">Relic 7</div>
         <div class="node-status locked">Sealed</div>
       </div>
 
-      <div class="map-node locked">
+      <div class="map-node locked" data-relic-index="7">
         <div class="node-name locked">Relic 8</div>
         <div class="node-status locked">Sealed</div>
       </div>
@@ -662,11 +669,14 @@
 
     <!-- APPLY -->
     <section class="apply-section" id="apply-section">
-      <a href="https://x.com/sifumazz" target="_blank" rel="noopener" class="apply-btn">Apply to Acquire</a>
+      <a href="apply.html" class="apply-btn">Apply to Acquire</a>
+      <div style="margin-top: 24px; font-family: var(--font-mono); font-size: 0.65rem; color: #334155; letter-spacing: 0.15em; text-transform: uppercase;">— or —</div>
+      <a href="https://x.com/sifumazz" target="_blank" rel="noopener" style="display: inline-block; margin-top: 16px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); text-decoration: none; letter-spacing: 0.05em; transition: color 0.3s;">@sifumazz on X</a>
     </section>
 
     <!-- FOOTER -->
     <footer>
+      <a href="provenance.html" style="color: #334155; text-decoration: none; border-bottom: 1px solid rgba(6, 182, 212, 0.15); transition: color 0.3s;">Provenance</a><br>
       Charlemagne<br>
       Mazzizax Fleet<br>
       2026
@@ -675,6 +685,66 @@
   </div>
 
   <script>
+    // ============================================================
+    // CASCADE STATE ENGINE
+    // To update the page state, change relicsSold and reload.
+    // 0 = Staff active (launch state)
+    // 1 = Staff sold, Duffle Bag active
+    // 2 = Duffle Bag sold, ATA Belt active
+    // ... and so on through 8
+    // ============================================================
+    var CASCADE_STATE = {
+      relicsSold: 0
+    };
+
+    (function() {
+      var state = CASCADE_STATE.relicsSold;
+      var nodes = document.querySelectorAll('.cascade-sidebar .map-node[data-relic-index]');
+      var milestones = document.querySelectorAll('.cascade-sidebar .milestone[data-after-relic]');
+
+      nodes.forEach(function(node) {
+        var idx = parseInt(node.getAttribute('data-relic-index'));
+        node.className = 'map-node';
+        var nameEl = node.querySelector('.node-name');
+        var statusEl = node.querySelector('.node-status');
+
+        if (idx < state) {
+          // Acquired
+          node.classList.add('acquired');
+          nameEl.className = 'node-name';
+          statusEl.className = 'node-status acquired';
+          statusEl.textContent = 'Acquired';
+        } else if (idx === state) {
+          // Active
+          node.classList.add('active');
+          nameEl.className = 'node-name';
+          statusEl.className = 'node-status active';
+          statusEl.textContent = 'Active';
+        } else {
+          // Locked
+          node.classList.add('locked');
+          nameEl.className = 'node-name locked';
+          statusEl.className = 'node-status locked';
+          statusEl.textContent = 'Sealed';
+        }
+      });
+
+      milestones.forEach(function(ms) {
+        var afterRelic = parseInt(ms.getAttribute('data-after-relic'));
+        if (afterRelic < state) {
+          ms.className = 'milestone';
+        } else {
+          ms.className = 'milestone locked';
+        }
+      });
+
+      // Update apply link to point to form
+      var applySection = document.getElementById('apply-section');
+      if (state >= 8) {
+        applySection.innerHTML = '<p style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-dim); letter-spacing: 0.05em;">All relics have found their holders.</p>';
+      }
+    })();
+
     // Cascade sidebar toggle for mobile/narrow screens
     document.getElementById('cascade-toggle').addEventListener('click', function() {
       document.getElementById('cascade-sidebar').classList.toggle('open');
