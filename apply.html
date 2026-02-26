@@ -269,7 +269,14 @@
     </section>
 
     <section class="form-container" id="form-container">
-      <form id="inquiry-form">
+      <form action="https://formsubmit.co/o2bmazz@gmail.com" method="POST">
+        <input type="hidden" name="_subject" value="Application: The Sage Staff of Revolution">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://mazzizax.net/received.html">
+        <input type="text" name="_honey" style="display:none">
+        <input type="hidden" name="relic" value="The Sage Staff of Revolution">
+
         <div class="field">
           <label for="name">Name</label>
           <input type="text" id="name" name="name" required>
@@ -277,7 +284,7 @@
 
         <div class="field">
           <label for="contact">Contact</label>
-          <input type="text" id="contact" name="contact" required placeholder="">
+          <input type="text" id="contact" name="contact" required>
         </div>
 
         <div class="field">
@@ -306,44 +313,5 @@
 
   </div>
 
-  <script>
-    document.getElementById('inquiry-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      var name = document.getElementById('name').value.trim();
-      var contact = document.getElementById('contact').value.trim();
-      var whyYou = document.getElementById('why-you').value.trim();
-
-      // Store locally and send via mailto as fallback
-      var application = {
-        name: name,
-        contact: contact,
-        why_you: whyYou,
-        relic: 'The Sage Staff of Revolution',
-        submitted: new Date().toISOString()
-      };
-
-      // Store in localStorage as backup
-      var apps = JSON.parse(localStorage.getItem('relic_applications') || '[]');
-      apps.push(application);
-      localStorage.setItem('relic_applications', JSON.stringify(apps));
-
-      // Compose mailto
-      var subject = encodeURIComponent('Application: The Sage Staff of Revolution — ' + name);
-      var body = encodeURIComponent(
-        'Name: ' + name + '\n' +
-        'Contact: ' + contact + '\n' +
-        'Relic: The Sage Staff of Revolution\n\n' +
-        'Why you:\n' + whyYou + '\n\n' +
-        'Submitted: ' + application.submitted
-      );
-
-      window.location.href = 'mailto:o2bmazz@gmail.com?subject=' + subject + '&body=' + body;
-
-      // Show confirmation
-      document.getElementById('form-container').style.display = 'none';
-      document.getElementById('confirmation').classList.add('visible');
-    });
-  </script>
 </body>
 </html>
