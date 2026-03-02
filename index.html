@@ -82,70 +82,113 @@
       left: 0;
       right: 0;
       z-index: 30;
-      background: rgba(3, 7, 18, 0.92);
-      backdrop-filter: blur(12px);
+      background: rgba(3, 7, 18, 0.95);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border-color);
-      padding: 20px 24px;
+      padding: 0;
+    }
+
+    .site-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--cyan-bright), transparent);
+      opacity: 0.3;
+    }
+
+    .site-header-inner {
+      padding: 24px 32px 0;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
     }
 
     .site-header .novel-title {
       font-family: var(--font-sans);
-      font-weight: 300;
-      font-size: 0.85rem;
+      font-weight: 200;
+      font-size: 1.05rem;
       color: white;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      line-height: 1.4;
+      line-height: 1.5;
+    }
+
+    .site-header .novel-title .title-main {
+      display: block;
+      color: white;
+    }
+
+    .site-header .novel-title .title-sub {
+      display: block;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      letter-spacing: 0.22em;
+      font-weight: 300;
+      margin-top: 2px;
     }
 
     .site-header .novel-title a {
-      color: white;
+      color: inherit;
       text-decoration: none;
+    }
+
+    .header-accent {
+      position: absolute;
+      top: 12px;
+      right: 32px;
+      width: 28px;
+      height: 28px;
+      opacity: 0.06;
+    }
+
+    .header-accent line {
+      stroke: var(--cyan-bright);
+      stroke-width: 1.5;
     }
 
     .site-header nav {
       display: flex;
-      gap: 8px;
+      gap: 0;
+      align-self: stretch;
+      margin-top: 20px;
     }
 
     .site-header nav a {
       font-family: var(--font-mono);
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       color: var(--text-dim);
       text-decoration: none;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      padding: 6px 14px;
-      border: 1px solid transparent;
+      padding: 10px 20px 12px;
+      border-bottom: 2px solid transparent;
       transition: all 0.3s;
     }
 
     .site-header nav a:hover {
       color: var(--cyan-bright);
-      border-color: var(--border-color);
     }
 
     .site-header nav a.active {
       color: var(--cyan-bright);
-      border-color: var(--cyan-mid);
-      background: rgba(6, 182, 212, 0.06);
+      border-bottom-color: var(--cyan-bright);
     }
 
     /* === LAYOUT SHELL === */
     .shell {
       display: flex;
       min-height: 100vh;
-      padding-top: 72px;
+      padding-top: 100px;
     }
 
     /* === CASCADE SIDEBAR === */
     .cascade-sidebar {
       position: fixed;
       left: 0;
-      top: 72px;
+      top: 100px;
       bottom: 0;
       width: 260px;
       background: var(--panel-bg);
@@ -162,7 +205,7 @@
     .cascade-toggle {
       position: fixed;
       left: 16px;
-      top: 80px;
+      top: 108px;
       z-index: 25;
       background: var(--panel-bg);
       border: 1px solid var(--border-color);
@@ -893,33 +936,43 @@
     @media (max-width: 640px) {
       body { font-size: 16px; }
 
-      .site-header {
+      .site-header-inner {
         flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-        padding: 16px 20px;
+        padding: 16px 20px 0;
+      }
+
+      .site-header .novel-title {
+        font-size: 0.85rem;
+      }
+
+      .site-header .novel-title .title-sub {
+        font-size: 0.6rem;
+      }
+
+      .header-accent {
+        display: none;
       }
 
       .site-header nav {
         flex-wrap: wrap;
-        gap: 4px;
+        margin-top: 12px;
       }
 
       .site-header nav a {
-        font-size: 0.6rem;
-        padding: 5px 10px;
+        font-size: 0.55rem;
+        padding: 8px 14px 10px;
       }
 
       .shell {
-        padding-top: 110px;
+        padding-top: 120px;
       }
 
       .cascade-toggle {
-        top: 118px;
+        top: 128px;
       }
 
       .cascade-sidebar {
-        top: 110px;
+        top: 120px;
       }
 
       .home-landing { padding: 80px 0 60px; }
@@ -937,8 +990,20 @@
 
   <!-- FIXED HEADER -->
   <header class="site-header">
-    <div class="novel-title">
-      <a href="#home">Conversations with Xenon, and Other<br>Tales of The Savage Sage</a>
+    <div class="site-header-inner">
+      <div class="novel-title">
+        <a href="#home">
+          <span class="title-main">Conversations with Xenon</span>
+          <span class="title-sub">and Other Tales of The Savage Sage</span>
+        </a>
+      </div>
+      <!-- Subtle hexagram accent -->
+      <svg class="header-accent" viewBox="0 0 28 28" fill="none">
+        <line x1="6" y1="6" x2="22" y2="6"/>
+        <line x1="6" y1="11" x2="12" y2="11"/><line x1="16" y1="11" x2="22" y2="11"/>
+        <line x1="6" y1="16" x2="22" y2="16"/>
+        <line x1="6" y1="21" x2="12" y2="21"/><line x1="16" y1="21" x2="22" y2="21"/>
+      </svg>
     </div>
     <nav>
       <a href="#conversations" data-nav="conversations">Conversations</a>
