@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apply to Acquire — The Sage and the Staff</title>
+  <title>Apply to Acquire — The Sage Staff of Revolution</title>
 
   <style>
     @font-face {
@@ -67,7 +67,7 @@
     }
 
     .page {
-      max-width: 560px;
+      max-width: 620px;
       margin: 0 auto;
       padding: 0 24px;
     }
@@ -89,7 +89,7 @@
 
     .form-header {
       text-align: center;
-      padding: 80px 0 48px;
+      padding: 80px 0 32px;
     }
 
     .relic-photo {
@@ -115,14 +115,46 @@
       font-size: 1.4rem;
       color: var(--cyan-bright);
       font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .fee-notice {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #ff1744;
+      letter-spacing: 0.05em;
+      line-height: 1.8;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 16px 20px;
+      border: 1px solid rgba(255, 23, 68, 0.2);
+      background: rgba(255, 23, 68, 0.05);
+    }
+
+    .fee-amount {
+      color: #ff1744;
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--cyan-bright);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin: 48px 0 24px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      opacity: 0.7;
     }
 
     .form-container {
-      padding: 48px 0 120px;
+      padding: 16px 0 120px;
     }
 
     .field {
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
 
     .field label {
@@ -136,8 +168,16 @@
       opacity: 0.8;
     }
 
+    .field .hint {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+
     .field input,
-    .field textarea {
+    .field textarea,
+    .field select {
       width: 100%;
       background: rgba(6, 182, 212, 0.03);
       border: 1px solid var(--border-color);
@@ -150,8 +190,25 @@
       line-height: 1.7;
     }
 
+    .field select {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2306b6d4' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+    }
+
+    .field select option {
+      background: #0b1427;
+      color: var(--text-bright);
+    }
+
     .field input:focus,
-    .field textarea:focus {
+    .field textarea:focus,
+    .field select:focus {
       border-color: var(--cyan-mid);
     }
 
@@ -161,8 +218,69 @@
     }
 
     .field textarea {
-      min-height: 180px;
+      min-height: 140px;
       resize: vertical;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .terms-box {
+      padding: 20px;
+      border: 1px solid var(--border-color);
+      background: rgba(6, 182, 212, 0.02);
+      margin: 40px 0 32px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      line-height: 2;
+    }
+
+    .terms-box ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .terms-box ul li {
+      padding-left: 16px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+
+    .terms-box ul li::before {
+      content: '\2014';
+      position: absolute;
+      left: 0;
+      color: var(--cyan-bright);
+      opacity: 0.5;
+    }
+
+    .consent-field {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 32px 0;
+      cursor: pointer;
+    }
+
+    .consent-field input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      min-width: 18px;
+      margin-top: 2px;
+      accent-color: var(--cyan-bright);
+      cursor: pointer;
+    }
+
+    .consent-field label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      line-height: 1.8;
+      cursor: pointer;
     }
 
     .submit-row {
@@ -172,7 +290,7 @@
 
     .submit-btn {
       display: inline-block;
-      padding: 16px 44px;
+      padding: 18px 48px;
       background: rgba(6, 182, 212, 0.08);
       border: 1px solid rgba(6, 182, 212, 0.3);
       color: #22d3ee;
@@ -195,6 +313,16 @@
     .submit-btn:disabled {
       opacity: 0.3;
       cursor: not-allowed;
+    }
+
+    .payment-placeholder {
+      text-align: center;
+      padding: 24px;
+      border: 1px dashed rgba(6, 182, 212, 0.2);
+      margin: 32px 0;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: #334155;
     }
 
     .confirmation {
@@ -249,8 +377,9 @@
 
     @media (max-width: 640px) {
       body { font-size: 15px; }
-      .form-header { padding: 60px 0 36px; }
+      .form-header { padding: 60px 0 24px; }
       .page { padding: 0 20px; }
+      .field-row { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -266,34 +395,111 @@
       <img src="images/staff-bag.jpg" alt="The Sage Staff of Revolution" class="relic-photo">
       <div class="relic-name">The Sage Staff of Revolution</div>
       <div class="relic-price">$100,000</div>
+      <div class="fee-notice">
+        Non-refundable application fee: <span class="fee-amount">$1,200</span><br>
+        Applied to purchase price if selected.
+      </div>
     </section>
 
     <section class="form-container" id="form-container">
-      <form action="https://formsubmit.co/o2bmazz@gmail.com" method="POST">
-        <input type="hidden" name="_subject" value="Application: The Sage Staff of Revolution">
-        <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_captcha" value="false">
-        <input type="hidden" name="_next" value="https://mazzizax.net/received.html">
-        <input type="text" name="_honey" style="display:none">
+      <form id="application-form">
         <input type="hidden" name="relic" value="The Sage Staff of Revolution">
 
-        <div class="field">
-          <label for="name">Name</label>
-          <input type="text" id="name" name="name" required>
+        <div class="section-label">Applicant Information</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="first-name">First Name</label>
+            <input type="text" id="first-name" name="first_name" required>
+          </div>
+          <div class="field">
+            <label for="last-name">Last Name</label>
+            <input type="text" id="last-name" name="last_name" required>
+          </div>
         </div>
 
         <div class="field">
-          <label for="contact">Contact</label>
-          <input type="text" id="contact" name="contact" required>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" required>
+          </div>
+          <div class="field">
+            <label for="state-country">State / Country</label>
+            <input type="text" id="state-country" name="state_country" required>
+          </div>
+        </div>
+
+        <div class="section-label">Qualification</div>
+
+        <div class="field">
+          <label for="occupation">Occupation / Profession</label>
+          <input type="text" id="occupation" name="occupation" required>
+        </div>
+
+        <div class="field">
+          <label for="intent">Intent of Acquisition</label>
+          <div class="hint">What do you intend to do with the relic?</div>
+          <select id="intent" name="intent" required>
+            <option value="" disabled selected>Select one</option>
+            <option value="personal-collection">Personal collection</option>
+            <option value="gallery-exhibition">Gallery or exhibition</option>
+            <option value="institutional">Institutional acquisition</option>
+            <option value="investment">Investment</option>
+            <option value="other">Other</option>
+          </select>
         </div>
 
         <div class="field">
           <label for="why-you">Why you.</label>
-          <textarea id="why-you" name="why_you"></textarea>
+          <div class="hint">This is not optional. Speak plainly.</div>
+          <textarea id="why-you" name="why_you" required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="relationship">What is your relationship to the work?</label>
+          <div class="hint">Have you read the novel? How did you find this site?</div>
+          <textarea id="relationship" name="relationship" style="min-height:100px;" required></textarea>
+        </div>
+
+        <div class="field">
+          <label for="additional">Anything else the sage should know</label>
+          <textarea id="additional" name="additional" style="min-height:100px;"></textarea>
+        </div>
+
+        <div class="terms-box">
+          <strong style="color:var(--text-bright);">Application Terms</strong>
+          <ul>
+            <li>The application fee of $1,200 USD is non-refundable</li>
+            <li>If your application is selected, the fee will be credited toward the $100,000 purchase price</li>
+            <li>Submitting an application does not guarantee selection</li>
+            <li>The architect reserves the sole and absolute right to accept or reject any application for any reason</li>
+            <li>Selected applicants will be contacted directly to arrange transfer</li>
+            <li>This is not a first-come, first-served sale — this is a selection process</li>
+          </ul>
+        </div>
+
+        <div class="consent-field">
+          <input type="checkbox" id="consent" name="consent" required>
+          <label for="consent">I understand and accept the application terms. I acknowledge that the $1,200 application fee is non-refundable regardless of outcome.</label>
+        </div>
+
+        <!-- Stripe payment element will be mounted here -->
+        <div id="stripe-payment" class="payment-placeholder">
+          Payment integration loading — Stripe keys required
         </div>
 
         <div class="submit-row">
-          <button type="submit" class="submit-btn">Submit Application</button>
+          <button type="submit" class="submit-btn" id="submit-btn" disabled>Submit Application &amp; Pay $1,200</button>
         </div>
       </form>
 
@@ -302,7 +508,7 @@
     </section>
 
     <section class="confirmation" id="confirmation">
-      <p>Received. The sage will be in touch.</p>
+      <p>Application received. The sage will review and be in touch.</p>
     </section>
 
     <footer>
@@ -312,6 +518,23 @@
     </footer>
 
   </div>
+
+  <script>
+    // Enable submit only when consent is checked
+    var consent = document.getElementById('consent');
+    var submitBtn = document.getElementById('submit-btn');
+    consent.addEventListener('change', function() {
+      submitBtn.disabled = !consent.checked;
+    });
+
+    // Form submission — Stripe integration will replace this
+    document.getElementById('application-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // TODO: Process Stripe payment, then submit form data
+      // For now, form is blocked until Stripe is wired up
+      alert('Payment integration pending — Stripe API key required.');
+    });
+  </script>
 
 </body>
 </html>
