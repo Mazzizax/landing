@@ -293,7 +293,7 @@
     .content-window {
       flex: 1;
       margin-left: 260px;
-      max-width: 720px;
+      max-width: 860px;
       padding: 0 24px;
     }
 
@@ -533,45 +533,113 @@
 
     .relic-card {
       border: 1px solid var(--border-color);
-      padding: 40px 32px;
-      margin-bottom: 24px;
+      margin-bottom: 12px;
+      transition: border-color 0.3s;
     }
 
-    .relic-card.sealed {
-      opacity: 0.3;
-      padding: 28px 32px;
+    .relic-card.open {
+      border-color: var(--cyan-mid);
     }
 
-    .relic-card-photo {
-      width: 100%;
-      max-width: 400px;
-      height: auto;
-      display: block;
-      margin: 0 auto 32px;
+    .relic-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
     }
 
-    .relic-card-info {
-      text-align: center;
+    .relic-card-header:hover {
+      background: rgba(6, 182, 212, 0.03);
+    }
+
+    .relic-card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .relic-card-chevron {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--cyan-bright);
+      transition: transform 0.3s;
+      flex-shrink: 0;
+    }
+
+    .relic-card.open .relic-card-chevron {
+      transform: rotate(90deg);
     }
 
     .relic-card-name {
       font-family: var(--font-sans);
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.85rem;
       color: white;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      margin-bottom: 4px;
     }
 
-    .relic-card-name.sealed {
+    .relic-card-tag {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .relic-card-tag.active { color: var(--cyan-bright); }
+    .relic-card-tag.sealed { color: #334155; }
+    .relic-card-tag.acquired { color: #22c55e; }
+
+    .relic-card.sealed .relic-card-name {
       color: #475569;
     }
 
-    .relic-card-year {
+    .relic-card.sealed .relic-card-header:hover {
+      background: transparent;
+      cursor: default;
+    }
+
+    .relic-card.sealed .relic-card-chevron {
+      visibility: hidden;
+    }
+
+    .relic-card-body {
+      display: none;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .relic-card.open .relic-card-body {
+      display: block;
+    }
+
+    .relic-card-body-inner {
+      display: flex;
+      gap: 40px;
+      padding: 32px 24px;
+    }
+
+    .relic-card-detail {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .relic-card-photo {
+      width: 100%;
+      max-width: 320px;
+      height: auto;
+      display: block;
+      margin-bottom: 24px;
+    }
+
+    .relic-card-meta {
       font-family: var(--font-mono);
       font-size: 0.8rem;
       color: var(--text-dim);
+      line-height: 2;
     }
 
     .relic-card-price {
@@ -582,33 +650,54 @@
       margin-top: 8px;
     }
 
-    .relic-card-status {
-      font-family: var(--font-mono);
-      font-size: 0.6rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-top: 8px;
-    }
-
-    .relic-card-status.active { color: var(--cyan-bright); }
-    .relic-card-status.sealed { color: #334155; }
-
-    .relic-inquiry-form {
-      margin-top: 48px;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
+    .relic-inquiry-side {
+      width: 280px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border-color);
+      padding-left: 40px;
     }
 
     .relic-inquiry-heading {
       font-family: var(--font-mono);
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--cyan-bright);
       letter-spacing: 0.2em;
       text-transform: uppercase;
-      text-align: center;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
       opacity: 0.6;
+    }
+
+    .relic-inquiry-side .field {
+      margin-bottom: 20px;
+    }
+
+    .relic-inquiry-side .field input,
+    .relic-inquiry-side .field textarea {
+      font-size: 0.9rem;
+      padding: 10px 12px;
+    }
+
+    .relic-inquiry-side .field textarea {
+      min-height: 100px;
+    }
+
+    .relic-inquiry-side .or-divider {
+      padding: 20px 0;
+    }
+
+    @media (max-width: 820px) {
+      .relic-card-body-inner {
+        flex-direction: column;
+        gap: 32px;
+      }
+
+      .relic-inquiry-side {
+        width: 100%;
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid var(--border-color);
+        padding-top: 32px;
+      }
     }
 
     /* === CONVERSATIONS PLACEHOLDER === */
@@ -1182,103 +1271,129 @@
           <div class="section-heading" style="padding-top: 80px;">Relics</div>
 
           <!-- RELIC 1: THE STAFF (ACTIVE) -->
-          <div class="relic-card active">
-            <img src="images/staff-bag.jpg" alt="The Sage Staff of Revolution" class="relic-card-photo">
-            <div class="relic-card-info">
-              <div class="relic-card-name">The Sage Staff of Revolution</div>
-              <div class="relic-card-year">2012</div>
-              <div class="relic-card-price">$100,000</div>
-              <div class="relic-card-status active">Active</div>
+          <div class="relic-card" data-relic="staff">
+            <div class="relic-card-header" onclick="toggleRelic(this)">
+              <div class="relic-card-header-left">
+                <span class="relic-card-chevron">&#9656;</span>
+                <span class="relic-card-name">The Sage Staff of Revolution</span>
+              </div>
+              <span class="relic-card-tag active">Active</span>
             </div>
-
-            <div class="relic-inquiry-form">
-              <div class="relic-inquiry-heading">Inquire</div>
-              <form action="https://formsubmit.co/o2bmazz@gmail.com" method="POST">
-                <input type="hidden" name="_subject" value="Application: The Sage Staff of Revolution">
-                <input type="hidden" name="_template" value="table">
-                <input type="hidden" name="_captcha" value="false">
-                <input type="hidden" name="_next" value="https://mazzizax.net/received.html">
-                <input type="text" name="_honey" style="display:none">
-                <input type="hidden" name="relic" value="The Sage Staff of Revolution">
-
-                <div class="field">
-                  <label for="name">Name</label>
-                  <input type="text" id="name" name="name" required>
+            <div class="relic-card-body">
+              <div class="relic-card-body-inner">
+                <div class="relic-card-detail">
+                  <img src="images/staff-bag.jpg" alt="The Sage Staff of Revolution" class="relic-card-photo">
+                  <div class="relic-card-meta">
+                    <div>2012</div>
+                    <div class="relic-card-price">$100,000</div>
+                  </div>
                 </div>
-
-                <div class="field">
-                  <label for="contact">Contact</label>
-                  <input type="text" id="contact" name="contact" required>
+                <div class="relic-inquiry-side">
+                  <div class="relic-inquiry-heading">Inquire</div>
+                  <form action="https://formsubmit.co/o2bmazz@gmail.com" method="POST">
+                    <input type="hidden" name="_subject" value="Inquiry: The Sage Staff of Revolution">
+                    <input type="hidden" name="_template" value="table">
+                    <input type="hidden" name="_captcha" value="false">
+                    <input type="hidden" name="_next" value="https://mazzizax.net/received.html">
+                    <input type="text" name="_honey" style="display:none">
+                    <input type="hidden" name="relic" value="The Sage Staff of Revolution">
+                    <div class="field">
+                      <label for="relic-name">Name</label>
+                      <input type="text" id="relic-name" name="name" required>
+                    </div>
+                    <div class="field">
+                      <label for="relic-contact">Contact</label>
+                      <input type="text" id="relic-contact" name="contact" required>
+                    </div>
+                    <div class="field">
+                      <label for="relic-why">Why you.</label>
+                      <textarea id="relic-why" name="why_you"></textarea>
+                    </div>
+                    <div class="submit-row" style="text-align: left;">
+                      <button type="submit" class="submit-btn">Submit</button>
+                    </div>
+                  </form>
+                  <div class="or-divider">— or —</div>
+                  <a href="https://x.com/sifumazz" target="_blank" rel="noopener" class="x-link">@sifumazz on X</a>
                 </div>
-
-                <div class="field">
-                  <label for="why-you">Why you.</label>
-                  <textarea id="why-you" name="why_you"></textarea>
-                </div>
-
-                <div class="submit-row">
-                  <button type="submit" class="submit-btn">Submit Inquiry</button>
-                </div>
-              </form>
-
-              <div class="or-divider">— or reach out directly —</div>
-              <a href="https://x.com/sifumazz" target="_blank" rel="noopener" class="x-link">@sifumazz on X</a>
+              </div>
             </div>
           </div>
 
           <!-- RELIC 2: SEALED -->
           <div class="relic-card sealed">
-            <div class="relic-card-info">
-              <div class="relic-card-name sealed">The Army Duffle Bag</div>
-              <div class="relic-card-status sealed">Sealed</div>
+            <div class="relic-card-header">
+              <div class="relic-card-header-left">
+                <span class="relic-card-chevron">&#9656;</span>
+                <span class="relic-card-name">The Army Duffle Bag</span>
+              </div>
+              <span class="relic-card-tag sealed">Sealed</span>
             </div>
           </div>
 
           <!-- RELIC 3: SEALED -->
           <div class="relic-card sealed">
-            <div class="relic-card-info">
-              <div class="relic-card-name sealed">The ATA Black Belt</div>
-              <div class="relic-card-status sealed">Sealed</div>
+            <div class="relic-card-header">
+              <div class="relic-card-header-left">
+                <span class="relic-card-chevron">&#9656;</span>
+                <span class="relic-card-name">The ATA Black Belt</span>
+              </div>
+              <span class="relic-card-tag sealed">Sealed</span>
             </div>
           </div>
 
           <!-- RELIC 4: SEALED -->
           <div class="relic-card sealed">
-            <div class="relic-card-info">
-              <div class="relic-card-name sealed">The Marmot Jacket</div>
-              <div class="relic-card-status sealed">Sealed</div>
+            <div class="relic-card-header">
+              <div class="relic-card-header-left">
+                <span class="relic-card-chevron">&#9656;</span>
+                <span class="relic-card-name">The Marmot Jacket</span>
+              </div>
+              <span class="relic-card-tag sealed">Sealed</span>
             </div>
           </div>
 
           <!-- RELIC 5: SEALED -->
           <div class="relic-card sealed">
-            <div class="relic-card-info">
-              <div class="relic-card-name sealed">Relic 5</div>
-              <div class="relic-card-status sealed">Sealed</div>
+            <div class="relic-card-header">
+              <div class="relic-card-header-left">
+                <span class="relic-card-chevron">&#9656;</span>
+                <span class="relic-card-name">Relic 5</span>
+              </div>
+              <span class="relic-card-tag sealed">Sealed</span>
             </div>
           </div>
 
           <!-- RELIC 6: SEALED -->
           <div class="relic-card sealed">
-            <div class="relic-card-info">
-              <div class="relic-card-name sealed">Relic 6</div>
-              <div class="relic-card-status sealed">Sealed</div>
+            <div class="relic-card-header">
+              <div class="relic-card-header-left">
+                <span class="relic-card-chevron">&#9656;</span>
+                <span class="relic-card-name">Relic 6</span>
+              </div>
+              <span class="relic-card-tag sealed">Sealed</span>
             </div>
           </div>
 
           <!-- RELIC 7: SEALED -->
           <div class="relic-card sealed">
-            <div class="relic-card-info">
-              <div class="relic-card-name sealed">Relic 7</div>
-              <div class="relic-card-status sealed">Sealed</div>
+            <div class="relic-card-header">
+              <div class="relic-card-header-left">
+                <span class="relic-card-chevron">&#9656;</span>
+                <span class="relic-card-name">Relic 7</span>
+              </div>
+              <span class="relic-card-tag sealed">Sealed</span>
             </div>
           </div>
 
           <!-- RELIC 8: SEALED -->
           <div class="relic-card sealed">
-            <div class="relic-card-info">
-              <div class="relic-card-name sealed">Relic 8</div>
-              <div class="relic-card-status sealed">Sealed</div>
+            <div class="relic-card-header">
+              <div class="relic-card-header-left">
+                <span class="relic-card-chevron">&#9656;</span>
+                <span class="relic-card-name">Relic 8</span>
+              </div>
+              <span class="relic-card-tag sealed">Sealed</span>
             </div>
           </div>
 
@@ -1390,6 +1505,15 @@
 
     // Initial route on page load
     navigateTo(location.hash);
+
+    // ============================================================
+    // RELIC CARD COLLAPSE/EXPAND
+    // ============================================================
+    function toggleRelic(headerEl) {
+      var card = headerEl.parentElement;
+      if (card.classList.contains('sealed')) return;
+      card.classList.toggle('open');
+    }
 
     // ============================================================
     // CASCADE SIDEBAR TOGGLE
