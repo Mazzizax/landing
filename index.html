@@ -1379,33 +1379,11 @@
                     <div class="relic-card-price">$100,000</div>
                   </div>
                 </div>
-                <div class="relic-inquiry-side">
-                  <div class="relic-inquiry-heading">Inquire</div>
-                  <form action="https://formsubmit.co/o2bmazz@gmail.com" method="POST">
-                    <input type="hidden" name="_subject" value="Inquiry: The Sage Staff of Revolution">
-                    <input type="hidden" name="_template" value="table">
-                    <input type="hidden" name="_captcha" value="false">
-                    <input type="hidden" name="_next" value="https://mazzizax.net/received.html">
-                    <input type="text" name="_honey" style="display:none">
-                    <input type="hidden" name="relic" value="The Sage Staff of Revolution">
-                    <div class="field">
-                      <label for="relic-name">Name</label>
-                      <input type="text" id="relic-name" name="name" required>
-                    </div>
-                    <div class="field">
-                      <label for="relic-contact">Contact</label>
-                      <input type="text" id="relic-contact" name="contact" required>
-                    </div>
-                    <div class="field">
-                      <label for="relic-why">Why you.</label>
-                      <textarea id="relic-why" name="why_you"></textarea>
-                    </div>
-                    <div class="submit-row" style="text-align: left;">
-                      <button type="submit" class="submit-btn">Submit</button>
-                    </div>
-                  </form>
-                  <div class="or-divider">— or —</div>
-                  <a href="https://x.com/sifumazz" target="_blank" rel="noopener" class="x-link">@sifumazz on X</a>
+                <div class="relic-inquiry-side" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+                  <button onclick="document.getElementById('apply-modal').style.display='flex';document.body.style.overflow='hidden';" style="padding:16px 40px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);color:#22d3ee;font-family:var(--font-sans);font-weight:600;font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;" onmouseover="this.style.background='rgba(6,182,212,0.15)';this.style.borderColor='#22d3ee';this.style.boxShadow='0 0 20px rgba(6,182,212,0.2)';this.style.color='white'" onmouseout="this.style.background='rgba(6,182,212,0.08)';this.style.borderColor='rgba(6,182,212,0.3)';this.style.boxShadow='none';this.style.color='#22d3ee'">Apply to Acquire</button>
+                  <div style="font-family:var(--font-mono);font-size:0.7rem;color:#ff1744;">$1,200 non-refundable application fee</div>
+                  <div style="font-family:var(--font-mono);font-size:0.6rem;color:#334155;text-align:center;">— or reach out directly —</div>
+                  <a href="https://x.com/sifumazz" target="_blank" rel="noopener" style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);text-decoration:none;transition:color 0.3s;" onmouseover="this.style.color='var(--cyan-bright)'" onmouseout="this.style.color='var(--text-dim)'">@sifumazz on X</a>
                 </div>
               </div>
             </div>
@@ -1727,6 +1705,139 @@
     document.getElementById('cascade-toggle').addEventListener('click', function() {
       document.getElementById('cascade-sidebar').classList.toggle('open');
     });
+  </script>
+
+  <!-- APPLICATION MODAL -->
+  <div id="apply-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(3,7,18,0.92);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px;">
+    <div style="width:100%;max-width:600px;background:rgba(11,20,39,0.95);border:1px solid rgba(6,182,212,0.2);padding:40px 36px;position:relative;margin:20px auto;">
+
+      <button onclick="document.getElementById('apply-modal').style.display='none';document.body.style.overflow='';" style="position:absolute;top:16px;right:20px;background:none;border:none;color:#475569;font-size:1.5rem;cursor:pointer;font-family:var(--font-mono);transition:color 0.2s;" onmouseover="this.style.color='#ff1744'" onmouseout="this.style.color='#475569'">&times;</button>
+
+      <div style="text-align:center;margin-bottom:32px;">
+        <div style="font-family:var(--font-sans);font-weight:600;font-size:1rem;color:white;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">Apply to Acquire</div>
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);">The Sage Staff of Revolution &middot; $100,000</div>
+      </div>
+
+      <div style="padding:14px 18px;border:1px solid rgba(255,23,68,0.2);background:rgba(255,23,68,0.05);margin-bottom:32px;text-align:center;">
+        <div style="font-family:var(--font-mono);font-size:0.75rem;color:#ff1744;line-height:1.8;">Non-refundable application fee: <strong style="font-size:1.1rem;">$1,200</strong><br>Applied to purchase price if selected.</div>
+      </div>
+
+      <form id="apply-form">
+        <input type="hidden" name="relic" value="The Sage Staff of Revolution">
+
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--cyan-bright);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:20px;padding-bottom:8px;border-bottom:1px solid var(--border-color);opacity:0.7;">Applicant Information</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+          <div>
+            <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">First Name</label>
+            <input type="text" name="first_name" required style="width:100%;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">Last Name</label>
+            <input type="text" name="last_name" required style="width:100%;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;">
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">Email</label>
+          <input type="email" name="email" required style="width:100%;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;">
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">Phone</label>
+          <input type="tel" name="phone" required style="width:100%;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+          <div>
+            <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">City</label>
+            <input type="text" name="city" required style="width:100%;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;">
+          </div>
+          <div>
+            <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">State / Country</label>
+            <input type="text" name="state_country" required style="width:100%;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;">
+          </div>
+        </div>
+
+        <div style="font-family:var(--font-mono);font-size:0.65rem;color:var(--cyan-bright);letter-spacing:0.2em;text-transform:uppercase;margin:36px 0 20px;padding-bottom:8px;border-bottom:1px solid var(--border-color);opacity:0.7;">Qualification</div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">Occupation / Profession</label>
+          <input type="text" name="occupation" required style="width:100%;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;">
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">Intent of Acquisition</label>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:#475569;margin-bottom:6px;">What do you intend to do with the relic?</div>
+          <select name="intent" required style="width:100%;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-mono);font-size:0.85rem;padding:12px 14px;outline:none;cursor:pointer;-webkit-appearance:none;appearance:none;">
+            <option value="" disabled selected>Select one</option>
+            <option value="personal-collection">Personal collection</option>
+            <option value="gallery-exhibition">Gallery or exhibition</option>
+            <option value="institutional">Institutional acquisition</option>
+            <option value="investment">Investment</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">Why you.</label>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:#475569;margin-bottom:6px;">This is not optional. Speak plainly.</div>
+          <textarea name="why_you" required style="width:100%;min-height:120px;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;resize:vertical;line-height:1.7;"></textarea>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">What is your relationship to the work?</label>
+          <div style="font-family:var(--font-mono);font-size:0.65rem;color:#475569;margin-bottom:6px;">Have you read the novel? How did you find this site?</div>
+          <textarea name="relationship" required style="width:100%;min-height:90px;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;resize:vertical;line-height:1.7;"></textarea>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-family:var(--font-mono);font-size:0.7rem;color:var(--cyan-bright);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:8px;opacity:0.8;">Anything else the sage should know</label>
+          <textarea name="additional" style="width:100%;min-height:90px;background:rgba(6,182,212,0.03);border:1px solid var(--border-color);color:var(--text-bright);font-family:var(--font-serif);font-size:1rem;padding:12px 14px;outline:none;resize:vertical;line-height:1.7;"></textarea>
+        </div>
+
+        <div style="padding:18px;border:1px solid var(--border-color);background:rgba(6,182,212,0.02);margin:32px 0 24px;font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);line-height:2;">
+          <strong style="color:var(--text-bright);">Application Terms</strong>
+          <div style="margin-top:8px;">
+            <div style="padding-left:16px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--cyan-bright);opacity:0.5;">&mdash;</span>The application fee of $1,200 USD is non-refundable</div>
+            <div style="padding-left:16px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--cyan-bright);opacity:0.5;">&mdash;</span>If selected, the fee is credited toward the $100,000 purchase price</div>
+            <div style="padding-left:16px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--cyan-bright);opacity:0.5;">&mdash;</span>Submitting an application does not guarantee selection</div>
+            <div style="padding-left:16px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--cyan-bright);opacity:0.5;">&mdash;</span>The architect reserves sole and absolute right to accept or reject any application</div>
+            <div style="padding-left:16px;position:relative;margin-bottom:4px;"><span style="position:absolute;left:0;color:var(--cyan-bright);opacity:0.5;">&mdash;</span>This is a selection process, not a first-come first-served sale</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:flex-start;gap:12px;margin:28px 0;cursor:pointer;">
+          <input type="checkbox" id="modal-consent" required style="width:18px;height:18px;min-width:18px;margin-top:2px;accent-color:var(--cyan-bright);cursor:pointer;">
+          <label for="modal-consent" style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);line-height:1.8;cursor:pointer;">I understand and accept the application terms. I acknowledge that the $1,200 application fee is non-refundable regardless of outcome.</label>
+        </div>
+
+        <!-- Stripe payment element mounts here -->
+        <div id="modal-stripe-payment" style="text-align:center;padding:20px;border:1px dashed rgba(6,182,212,0.2);margin:24px 0;font-family:var(--font-mono);font-size:0.75rem;color:#334155;">
+          Payment integration loading — Stripe keys required
+        </div>
+
+        <div style="text-align:center;padding-top:12px;">
+          <button type="submit" id="modal-submit-btn" disabled style="padding:18px 48px;background:rgba(6,182,212,0.08);border:1px solid rgba(6,182,212,0.3);color:#22d3ee;font-family:var(--font-sans);font-weight:600;font-size:0.8rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;" onmouseover="if(!this.disabled){this.style.background='rgba(6,182,212,0.15)';this.style.borderColor='#22d3ee';this.style.boxShadow='0 0 20px rgba(6,182,212,0.2)';this.style.color='white'}" onmouseout="this.style.background='rgba(6,182,212,0.08)';this.style.borderColor='rgba(6,182,212,0.3)';this.style.boxShadow='none';this.style.color='#22d3ee'">Submit Application &amp; Pay $1,200</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var consent = document.getElementById('modal-consent');
+      var btn = document.getElementById('modal-submit-btn');
+      consent.addEventListener('change', function(){ btn.disabled = !consent.checked; });
+      document.getElementById('apply-form').addEventListener('submit', function(e){
+        e.preventDefault();
+        alert('Payment integration pending — Stripe API key required.');
+      });
+      document.getElementById('apply-modal').addEventListener('click', function(e){
+        if(e.target === this){ this.style.display='none'; document.body.style.overflow=''; }
+      });
+    })();
   </script>
 
 </body>
