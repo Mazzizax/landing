@@ -1000,10 +1000,8 @@
   <script>
     (function(){
       var gate=document.getElementById('age-gate');
-      if(localStorage.getItem('age_verified')==='true'){gate.remove();return;}
       document.body.style.overflow='hidden';
       document.getElementById('age-enter').addEventListener('click',function(){
-        localStorage.setItem('age_verified','true');
         gate.style.opacity='0';gate.style.transition='opacity 0.3s';
         setTimeout(function(){gate.remove();document.body.style.overflow='';},300);
       });
