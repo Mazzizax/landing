@@ -526,6 +526,91 @@
       color: white;
     }
 
+    /* === RELICS PAGE === */
+    .relics-page {
+      padding-bottom: 80px;
+    }
+
+    .relic-card {
+      border: 1px solid var(--border-color);
+      padding: 40px 32px;
+      margin-bottom: 24px;
+    }
+
+    .relic-card.sealed {
+      opacity: 0.3;
+      padding: 28px 32px;
+    }
+
+    .relic-card-photo {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      display: block;
+      margin: 0 auto 32px;
+    }
+
+    .relic-card-info {
+      text-align: center;
+    }
+
+    .relic-card-name {
+      font-family: var(--font-sans);
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .relic-card-name.sealed {
+      color: #475569;
+    }
+
+    .relic-card-year {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .relic-card-price {
+      font-family: var(--font-mono);
+      font-size: 1.4rem;
+      color: var(--cyan-bright);
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .relic-card-status {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .relic-card-status.active { color: var(--cyan-bright); }
+    .relic-card-status.sealed { color: #334155; }
+
+    .relic-inquiry-form {
+      margin-top: 48px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .relic-inquiry-heading {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--cyan-bright);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 32px;
+      opacity: 0.6;
+    }
+
     /* === CONVERSATIONS PLACEHOLDER === */
     .conversations-placeholder {
       padding: 120px 0;
@@ -769,7 +854,7 @@
     <nav>
       <a href="#conversations" data-nav="conversations">Conversations</a>
       <a href="#tales" data-nav="tales">Tales</a>
-      <a href="#apply" data-nav="apply">Apply</a>
+      <a href="#relics" data-nav="relics">Relics</a>
     </nav>
   </header>
 
@@ -1066,9 +1151,7 @@
         </section>
 
         <section class="tale-apply-link">
-          <a href="#apply" class="apply-btn">Apply to Acquire</a>
-          <div style="margin-top: 24px; font-family: var(--font-mono); font-size: 0.65rem; color: #334155; letter-spacing: 0.15em; text-transform: uppercase;">— or —</div>
-          <a href="https://x.com/sifumazz" target="_blank" rel="noopener" style="display: inline-block; margin-top: 16px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dim); text-decoration: none; letter-spacing: 0.05em; transition: color 0.3s;">@sifumazz on X</a>
+          <a href="#relics" class="apply-btn">View Relics</a>
         </section>
 
         <footer class="content-footer">
@@ -1093,45 +1176,112 @@
         </footer>
       </div>
 
-      <!-- ==================== #apply ==================== -->
-      <div class="content-section" data-section="apply">
-        <div class="apply-form-section">
-          <div class="form-header">
-            <img src="images/staff-bag.jpg" alt="The Sage Staff of Revolution" class="relic-photo">
-            <div class="relic-name">The Sage Staff of Revolution</div>
-            <div class="relic-price">$100,000</div>
+      <!-- ==================== #relics ==================== -->
+      <div class="content-section" data-section="relics">
+        <div class="relics-page">
+          <div class="section-heading" style="padding-top: 80px;">Relics</div>
+
+          <!-- RELIC 1: THE STAFF (ACTIVE) -->
+          <div class="relic-card active">
+            <img src="images/staff-bag.jpg" alt="The Sage Staff of Revolution" class="relic-card-photo">
+            <div class="relic-card-info">
+              <div class="relic-card-name">The Sage Staff of Revolution</div>
+              <div class="relic-card-year">2012</div>
+              <div class="relic-card-price">$100,000</div>
+              <div class="relic-card-status active">Active</div>
+            </div>
+
+            <div class="relic-inquiry-form">
+              <div class="relic-inquiry-heading">Inquire</div>
+              <form action="https://formsubmit.co/o2bmazz@gmail.com" method="POST">
+                <input type="hidden" name="_subject" value="Application: The Sage Staff of Revolution">
+                <input type="hidden" name="_template" value="table">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://mazzizax.net/received.html">
+                <input type="text" name="_honey" style="display:none">
+                <input type="hidden" name="relic" value="The Sage Staff of Revolution">
+
+                <div class="field">
+                  <label for="name">Name</label>
+                  <input type="text" id="name" name="name" required>
+                </div>
+
+                <div class="field">
+                  <label for="contact">Contact</label>
+                  <input type="text" id="contact" name="contact" required>
+                </div>
+
+                <div class="field">
+                  <label for="why-you">Why you.</label>
+                  <textarea id="why-you" name="why_you"></textarea>
+                </div>
+
+                <div class="submit-row">
+                  <button type="submit" class="submit-btn">Submit Inquiry</button>
+                </div>
+              </form>
+
+              <div class="or-divider">— or reach out directly —</div>
+              <a href="https://x.com/sifumazz" target="_blank" rel="noopener" class="x-link">@sifumazz on X</a>
+            </div>
           </div>
 
-          <form action="https://formsubmit.co/o2bmazz@gmail.com" method="POST">
-            <input type="hidden" name="_subject" value="Application: The Sage Staff of Revolution">
-            <input type="hidden" name="_template" value="table">
-            <input type="hidden" name="_captcha" value="false">
-            <input type="hidden" name="_next" value="https://mazzizax.net/received.html">
-            <input type="text" name="_honey" style="display:none">
-            <input type="hidden" name="relic" value="The Sage Staff of Revolution">
-
-            <div class="field">
-              <label for="name">Name</label>
-              <input type="text" id="name" name="name" required>
+          <!-- RELIC 2: SEALED -->
+          <div class="relic-card sealed">
+            <div class="relic-card-info">
+              <div class="relic-card-name sealed">The Army Duffle Bag</div>
+              <div class="relic-card-status sealed">Sealed</div>
             </div>
+          </div>
 
-            <div class="field">
-              <label for="contact">Contact</label>
-              <input type="text" id="contact" name="contact" required>
+          <!-- RELIC 3: SEALED -->
+          <div class="relic-card sealed">
+            <div class="relic-card-info">
+              <div class="relic-card-name sealed">The ATA Black Belt</div>
+              <div class="relic-card-status sealed">Sealed</div>
             </div>
+          </div>
 
-            <div class="field">
-              <label for="why-you">Why you.</label>
-              <textarea id="why-you" name="why_you"></textarea>
+          <!-- RELIC 4: SEALED -->
+          <div class="relic-card sealed">
+            <div class="relic-card-info">
+              <div class="relic-card-name sealed">The Marmot Jacket</div>
+              <div class="relic-card-status sealed">Sealed</div>
             </div>
+          </div>
 
-            <div class="submit-row">
-              <button type="submit" class="submit-btn">Submit Application</button>
+          <!-- RELIC 5: SEALED -->
+          <div class="relic-card sealed">
+            <div class="relic-card-info">
+              <div class="relic-card-name sealed">Relic 5</div>
+              <div class="relic-card-status sealed">Sealed</div>
             </div>
-          </form>
+          </div>
 
-          <div class="or-divider">— or reach out directly —</div>
-          <a href="https://x.com/sifumazz" target="_blank" rel="noopener" class="x-link">@sifumazz on X</a>
+          <!-- RELIC 6: SEALED -->
+          <div class="relic-card sealed">
+            <div class="relic-card-info">
+              <div class="relic-card-name sealed">Relic 6</div>
+              <div class="relic-card-status sealed">Sealed</div>
+            </div>
+          </div>
+
+          <!-- RELIC 7: SEALED -->
+          <div class="relic-card sealed">
+            <div class="relic-card-info">
+              <div class="relic-card-name sealed">Relic 7</div>
+              <div class="relic-card-status sealed">Sealed</div>
+            </div>
+          </div>
+
+          <!-- RELIC 8: SEALED -->
+          <div class="relic-card sealed">
+            <div class="relic-card-info">
+              <div class="relic-card-name sealed">Relic 8</div>
+              <div class="relic-card-status sealed">Sealed</div>
+            </div>
+          </div>
+
         </div>
 
         <footer class="content-footer">
