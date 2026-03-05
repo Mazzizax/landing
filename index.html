@@ -1983,7 +1983,7 @@
 
   <script>
     // ============================================================
-    // FLEET IMAGE — ARC EFFECT (SAF)
+    // FLEET IMAGE — ARC EFFECT (SAF) + ZOOM + CONVERGENCE STORM
     // ============================================================
     (function() {
       var wrap = document.getElementById('fleet-image-wrap');
@@ -1992,22 +1992,47 @@
       if (!wrap || !canvas || !img) return;
       var ctx = canvas.getContext('2d');
       var arcActive = false;
+      var stormActive = false;
+
+      // Zoom state
+      var zoomLevel = 1;
+      var zoomMin = 1;
+      var zoomMax = 4;
+      var zoomStep = 0.15;
+      var panX = 0, panY = 0;
+      var isPanning = false;
+      var panStartX = 0, panStartY = 0;
+      var panOriginX = 0, panOriginY = 0;
 
       function sizeCanvas() {
-        // Size to the image only, not the caption
         canvas.width = img.offsetWidth;
         canvas.height = img.offsetHeight;
       }
 
+      function applyTransform() {
+        img.style.transformOrigin = '0 0';
+        img.style.transform = 'scale(' + zoomLevel + ') translate(' + panX + 'px, ' + panY + 'px)';
+        canvas.style.transformOrigin = '0 0';
+        canvas.style.transform = 'scale(' + zoomLevel + ') translate(' + panX + 'px, ' + panY + 'px)';
+      }
+
+      function clampPan() {
+        if (zoomLevel <= 1) { panX = 0; panY = 0; return; }
+        var maxPanX = (img.offsetWidth * (zoomLevel - 1)) / zoomLevel;
+        var maxPanY = (img.offsetHeight * (zoomLevel - 1)) / zoomLevel;
+        panX = Math.min(0, Math.max(-maxPanX, panX));
+        panY = Math.min(0, Math.max(-maxPanY, panY));
+      }
+
       window.addEventListener('resize', sizeCanvas);
 
+      // ---- ARC GENERATOR ----
       function generateArc(x0, y0, angle, length) {
         var points = [];
         var segments = 12 + Math.floor(Math.random() * 8);
         var segLen = length / segments;
         var cx = x0, cy = y0;
         points.push({ x: cx, y: cy });
-
         for (var i = 0; i < segments; i++) {
           var jitter = (Math.random() - 0.5) * segLen * 1.4;
           cx += Math.cos(angle) * segLen + Math.sin(angle) * jitter;
@@ -2017,25 +2042,24 @@
         return points;
       }
 
-      function drawAllArcs(arcSets, progress) {
+      // ---- DRAW MULTIPLE ARCS ----
+      function drawArcs(arcSets, progress, peakAlpha, clear) {
+        if (clear) ctx.clearRect(0, 0, canvas.width, canvas.height);
+
         var alpha;
         if (progress < 0.15) {
-          alpha = (progress / 0.15) * 0.18;
+          alpha = (progress / 0.15) * peakAlpha;
         } else if (progress < 0.5) {
-          alpha = 0.18;
+          alpha = peakAlpha;
         } else {
-          alpha = 0.18 * (1 - (progress - 0.5) / 0.5);
+          alpha = peakAlpha * (1 - (progress - 0.5) / 0.5);
         }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        var drawCount;
         for (var a = 0; a < arcSets.length; a++) {
           var points = arcSets[a];
-          drawCount = Math.floor(points.length * Math.min(progress / 0.3, 1));
+          var drawCount = Math.floor(points.length * Math.min(progress / 0.3, 1));
           if (drawCount < 2) drawCount = 2;
 
-          // Thinner for secondary arcs
           var lw = a === 0 ? 1.5 : 0.8 + Math.random() * 0.4;
           var arcAlpha = a === 0 ? alpha : alpha * (0.4 + Math.random() * 0.3);
 
@@ -2050,7 +2074,6 @@
           ctx.shadowBlur = 8;
           ctx.stroke();
 
-          // Branch on primary arc
           if (a === 0 && drawCount > 4) {
             var bi = 2 + Math.floor(Math.random() * (drawCount - 3));
             var bp = points[bi];
@@ -2065,24 +2088,20 @@
             ctx.stroke();
           }
         }
-
         ctx.shadowBlur = 0;
       }
 
+      // ---- SAF HOVER ARC ----
       function fireArc(entryX, entryY, velX, velY) {
-        if (arcActive) return;
+        if (arcActive || stormActive) return;
         arcActive = true;
         sizeCanvas();
 
-        // Clamp entry point to image bounds
         entryX = Math.max(0, Math.min(entryX, canvas.width));
         entryY = Math.max(0, Math.min(entryY, canvas.height));
 
-        // Perpendicular to entry velocity
         var mag = Math.sqrt(velX * velX + velY * velY);
-        // Determine entry edge to get a reliable direction when velocity is weak
         if (mag < 2) {
-          // Infer from which edge the mouse entered
           var fromLeft = entryX;
           var fromRight = canvas.width - entryX;
           var fromTop = entryY;
@@ -2097,7 +2116,6 @@
         var perpAngle = Math.atan2(velY, velX) + Math.PI / 2;
         if (Math.random() > 0.5) perpAngle += Math.PI;
 
-        // 1-3 arcs from the same origin with slight trajectory variation
         var arcCount = 1 + Math.floor(Math.random() * 3);
         var arcSets = [];
         for (var a = 0; a < arcCount; a++) {
@@ -2108,14 +2126,10 @@
 
         var duration = 220 + Math.random() * 80;
         var start = null;
-
         function animate(ts) {
           if (!start) start = ts;
-          var elapsed = ts - start;
-          var progress = Math.min(elapsed / duration, 1);
-
-          drawAllArcs(arcSets, progress);
-
+          var progress = Math.min((ts - start) / duration, 1);
+          drawArcs(arcSets, progress, 0.18, true);
           if (progress < 1) {
             requestAnimationFrame(animate);
           } else {
@@ -2123,11 +2137,189 @@
             arcActive = false;
           }
         }
-
         requestAnimationFrame(animate);
       }
 
-      // Track mouse velocity
+      // ---- CONVERGENCE STORM ----
+      function fireStorm() {
+        stormActive = true;
+        arcActive = false;
+        sizeCanvas();
+
+        var w = canvas.width;
+        var h = canvas.height;
+        var cx = w / 2;
+        var cy = h / 2;
+
+        // 25-30 arcs from random edge positions converging to center
+        var totalArcs = 25 + Math.floor(Math.random() * 6);
+        var waves = [];
+
+        for (var i = 0; i < totalArcs; i++) {
+          // Random point on an edge
+          var edge = Math.floor(Math.random() * 4);
+          var ex, ey;
+          if (edge === 0) { ex = Math.random() * w; ey = 0; }         // top
+          else if (edge === 1) { ex = w; ey = Math.random() * h; }    // right
+          else if (edge === 2) { ex = Math.random() * w; ey = h; }    // bottom
+          else { ex = 0; ey = Math.random() * h; }                    // left
+
+          // Angle toward center with slight jitter
+          var angleToCenter = Math.atan2(cy - ey, cx - ex) + (Math.random() - 0.5) * 0.4;
+          var dist = Math.sqrt((cx - ex) * (cx - ex) + (cy - ey) * (cy - ey));
+          var length = dist * (0.7 + Math.random() * 0.5);
+
+          // Stagger delay: 0-400ms
+          var delay = Math.random() * 400;
+          // Vary thickness: some bold, some threadlike
+          var thickness = Math.random() < 0.3 ? 2 + Math.random() * 1.5 : 0.6 + Math.random() * 0.8;
+          // Vary peak alpha: some bright, some dim
+          var peakAlpha = 0.12 + Math.random() * 0.25;
+
+          waves.push({
+            points: generateArc(ex, ey, angleToCenter, length),
+            delay: delay,
+            duration: 180 + Math.random() * 120,
+            thickness: thickness,
+            peakAlpha: peakAlpha
+          });
+        }
+
+        var totalDuration = 900;
+        var start = null;
+
+        function animateStorm(ts) {
+          if (!start) start = ts;
+          var elapsed = ts - start;
+
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          var anyAlive = false;
+          for (var i = 0; i < waves.length; i++) {
+            var wave = waves[i];
+            var localTime = elapsed - wave.delay;
+            if (localTime < 0) { anyAlive = true; continue; }
+            var progress = localTime / wave.duration;
+            if (progress > 1) continue;
+            anyAlive = true;
+
+            var alpha;
+            if (progress < 0.1) {
+              alpha = (progress / 0.1) * wave.peakAlpha;
+            } else if (progress < 0.4) {
+              alpha = wave.peakAlpha;
+            } else {
+              alpha = wave.peakAlpha * (1 - (progress - 0.4) / 0.6);
+            }
+
+            var drawCount = Math.floor(wave.points.length * Math.min(progress / 0.25, 1));
+            if (drawCount < 2) drawCount = 2;
+
+            ctx.beginPath();
+            ctx.moveTo(wave.points[0].x, wave.points[0].y);
+            for (var j = 1; j < drawCount; j++) {
+              ctx.lineTo(wave.points[j].x, wave.points[j].y);
+            }
+            ctx.strokeStyle = 'rgba(6, 182, 212, ' + alpha + ')';
+            ctx.lineWidth = wave.thickness;
+            ctx.shadowColor = 'rgba(6, 182, 212, ' + (alpha * 0.5) + ')';
+            ctx.shadowBlur = wave.thickness > 1.5 ? 12 : 5;
+            ctx.stroke();
+
+            // Branches on thicker bolts
+            if (wave.thickness > 1.5 && drawCount > 4) {
+              var numBranches = 1 + Math.floor(Math.random() * 3);
+              for (var b = 0; b < numBranches; b++) {
+                var bi = 2 + Math.floor(Math.random() * (drawCount - 3));
+                var bp = wave.points[bi];
+                var branchAngle = Math.atan2(wave.points[bi].y - wave.points[bi - 1].y, wave.points[bi].x - wave.points[bi - 1].x) + (Math.random() - 0.5) * 1.5;
+                var bLen = 10 + Math.random() * 30;
+                ctx.beginPath();
+                ctx.moveTo(bp.x, bp.y);
+                ctx.lineTo(bp.x + Math.cos(branchAngle) * bLen, bp.y + Math.sin(branchAngle) * bLen);
+                ctx.strokeStyle = 'rgba(6, 182, 212, ' + (alpha * 0.4) + ')';
+                ctx.lineWidth = 0.6;
+                ctx.shadowBlur = 3;
+                ctx.stroke();
+              }
+            }
+          }
+
+          ctx.shadowBlur = 0;
+
+          if (anyAlive && elapsed < totalDuration) {
+            requestAnimationFrame(animateStorm);
+          } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            stormActive = false;
+          }
+        }
+
+        requestAnimationFrame(animateStorm);
+      }
+
+      // ---- SCROLL ZOOM ----
+      wrap.addEventListener('wheel', function(e) {
+        e.preventDefault();
+
+        var prevZoom = zoomLevel;
+        if (e.deltaY < 0) {
+          zoomLevel = Math.min(zoomMax, zoomLevel + zoomStep);
+        } else {
+          zoomLevel = Math.max(zoomMin, zoomLevel - zoomStep);
+        }
+
+        if (zoomLevel === zoomMin && prevZoom === zoomMin) return;
+
+        // Zoom toward mouse position
+        if (zoomLevel > zoomMin) {
+          var imgRect = img.getBoundingClientRect();
+          var mouseX = (e.clientX - imgRect.left) / prevZoom - panX;
+          var mouseY = (e.clientY - imgRect.top) / prevZoom - panY;
+          var scale = zoomLevel / prevZoom;
+          panX = panX - mouseX * (scale - 1);
+          panY = panY - mouseY * (scale - 1);
+        }
+
+        clampPan();
+        applyTransform();
+        wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
+
+        // Fire storm on zoom in (testing: every zoom)
+        if (zoomLevel > prevZoom && prevZoom <= zoomMin) {
+          fireStorm();
+        }
+      }, { passive: false });
+
+      // ---- PAN WHEN ZOOMED ----
+      wrap.addEventListener('mousedown', function(e) {
+        if (zoomLevel <= 1) return;
+        isPanning = true;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
+        panOriginX = panX;
+        panOriginY = panY;
+        wrap.style.cursor = 'grabbing';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (isPanning) {
+          panX = panOriginX + (e.clientX - panStartX) / zoomLevel;
+          panY = panOriginY + (e.clientY - panStartY) / zoomLevel;
+          clampPan();
+          applyTransform();
+        }
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (isPanning) {
+          isPanning = false;
+          wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
+        }
+      });
+
+      // ---- TRACK MOUSE FOR HOVER ARC ----
       var prevX = null, prevY = null, prevT = null;
 
       document.addEventListener('mousemove', function(e) {
@@ -2137,6 +2329,7 @@
       });
 
       wrap.addEventListener('mouseenter', function(e) {
+        if (stormActive) return;
         var imgRect = img.getBoundingClientRect();
         var localX = e.clientX - imgRect.left;
         var localY = e.clientY - imgRect.top;
