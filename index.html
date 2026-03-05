@@ -1592,8 +1592,9 @@
           <section style="padding:40px 0;border-top:1px solid var(--border-color);">
             <h2 style="font-family:var(--font-sans);font-weight:600;font-size:1rem;color:white;letter-spacing:0.05em;margin-bottom:24px;">The Fleet</h2>
             <div style="display:flex;flex-direction:column;gap:24px;">
-              <div>
-                <img src="images/fleet-command.jpg" alt="The Mazzizax Fleet — command center" style="width:100%;border:1px solid var(--border-color);display:block;">
+              <div id="fleet-image-wrap" style="position:relative;overflow:hidden;cursor:default;">
+                <img id="fleet-img" src="images/fleet-command.jpg" alt="The Mazzizax Fleet — command center" style="width:100%;border:1px solid var(--border-color);display:block;">
+                <canvas id="fleet-arc-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
                 <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);letter-spacing:0.05em;margin-top:8px;text-align:center;">The Mazzizax Fleet</div>
               </div>
             </div>
@@ -1977,6 +1978,158 @@
       document.getElementById('apply-modal').addEventListener('click', function(e){
         if(e.target === this){ this.style.display='none'; document.body.style.overflow=''; }
       });
+    })();
+  </script>
+
+  <script>
+    // ============================================================
+    // FLEET IMAGE — ARC EFFECT (SAF)
+    // ============================================================
+    (function() {
+      var wrap = document.getElementById('fleet-image-wrap');
+      var canvas = document.getElementById('fleet-arc-canvas');
+      if (!wrap || !canvas) return;
+      var ctx = canvas.getContext('2d');
+      var lastEntry = null;
+      var arcActive = false;
+
+      function sizeCanvas() {
+        var img = document.getElementById('fleet-img');
+        canvas.width = img.offsetWidth;
+        canvas.height = img.offsetHeight;
+      }
+
+      window.addEventListener('resize', sizeCanvas);
+
+      // Generate jagged lightning path from point along a direction
+      function generateArc(x0, y0, angle, length) {
+        var points = [];
+        var segments = 12 + Math.floor(Math.random() * 8);
+        var segLen = length / segments;
+        var cx = x0, cy = y0;
+        points.push({ x: cx, y: cy });
+
+        for (var i = 0; i < segments; i++) {
+          // Main direction with jitter
+          var jitter = (Math.random() - 0.5) * segLen * 1.4;
+          cx += Math.cos(angle) * segLen + Math.sin(angle) * jitter;
+          cy += Math.sin(angle) * segLen + Math.cos(angle) * jitter;
+          points.push({ x: cx, y: cy });
+        }
+        return points;
+      }
+
+      // Draw a single arc with fade
+      function drawArc(points, progress) {
+        // progress: 0 to 1 (lifecycle of the arc)
+        var alpha;
+        if (progress < 0.15) {
+          alpha = (progress / 0.15) * 0.18;
+        } else if (progress < 0.5) {
+          alpha = 0.18;
+        } else {
+          alpha = 0.18 * (1 - (progress - 0.5) / 0.5);
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // How many segments to reveal (progressive draw)
+        var drawCount = Math.floor(points.length * Math.min(progress / 0.3, 1));
+        if (drawCount < 2) drawCount = 2;
+
+        // Main bolt
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (var i = 1; i < drawCount; i++) {
+          ctx.lineTo(points[i].x, points[i].y);
+        }
+        ctx.strokeStyle = 'rgba(6, 182, 212, ' + alpha + ')';
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = 'rgba(6, 182, 212, ' + (alpha * 0.6) + ')';
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+
+        // Thin branch off a random midpoint
+        if (drawCount > 4) {
+          var bi = 2 + Math.floor(Math.random() * (drawCount - 3));
+          var bp = points[bi];
+          var branchAngle = Math.atan2(points[bi].y - points[bi - 1].y, points[bi].x - points[bi - 1].x) + (Math.random() - 0.5) * 1.2;
+          ctx.beginPath();
+          ctx.moveTo(bp.x, bp.y);
+          var bLen = 15 + Math.random() * 25;
+          ctx.lineTo(bp.x + Math.cos(branchAngle) * bLen, bp.y + Math.sin(branchAngle) * bLen);
+          ctx.strokeStyle = 'rgba(6, 182, 212, ' + (alpha * 0.5) + ')';
+          ctx.lineWidth = 0.8;
+          ctx.shadowBlur = 4;
+          ctx.stroke();
+        }
+
+        ctx.shadowBlur = 0;
+      }
+
+      function fireArc(entryX, entryY, velX, velY) {
+        if (arcActive) return;
+        arcActive = true;
+        sizeCanvas();
+
+        // Perpendicular to entry velocity
+        var mag = Math.sqrt(velX * velX + velY * velY);
+        if (mag < 0.5) { velX = 1; velY = 0; mag = 1; }
+        var perpAngle = Math.atan2(velY, velX) + Math.PI / 2;
+        // Randomly flip direction
+        if (Math.random() > 0.5) perpAngle += Math.PI;
+
+        var length = Math.max(canvas.width, canvas.height) * (0.4 + Math.random() * 0.3);
+        var points = generateArc(entryX, entryY, perpAngle, length);
+
+        var duration = 220 + Math.random() * 80;
+        var start = null;
+
+        function animate(ts) {
+          if (!start) start = ts;
+          var elapsed = ts - start;
+          var progress = Math.min(elapsed / duration, 1);
+
+          drawArc(points, progress);
+
+          if (progress < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            arcActive = false;
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      // Track mouse to compute velocity at entry
+      var prevX = null, prevY = null, prevT = null;
+
+      document.addEventListener('mousemove', function(e) {
+        prevX = e.clientX;
+        prevY = e.clientY;
+        prevT = performance.now();
+      });
+
+      wrap.addEventListener('mouseenter', function(e) {
+        var rect = wrap.getBoundingClientRect();
+        var localX = e.clientX - rect.left;
+        var localY = e.clientY - rect.top;
+
+        // Velocity from recent mouse movement
+        var velX = 1, velY = 0;
+        if (prevX !== null && prevT !== null) {
+          var dt = performance.now() - prevT;
+          if (dt < 100 && dt > 0) {
+            velX = e.clientX - prevX;
+            velY = e.clientY - prevY;
+          }
+        }
+
+        fireArc(localX, localY, velX, velY);
+      });
+
     })();
   </script>
 
