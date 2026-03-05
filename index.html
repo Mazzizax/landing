@@ -1988,20 +1988,19 @@
     (function() {
       var wrap = document.getElementById('fleet-image-wrap');
       var canvas = document.getElementById('fleet-arc-canvas');
-      if (!wrap || !canvas) return;
+      var img = document.getElementById('fleet-img');
+      if (!wrap || !canvas || !img) return;
       var ctx = canvas.getContext('2d');
-      var lastEntry = null;
       var arcActive = false;
 
       function sizeCanvas() {
-        var img = document.getElementById('fleet-img');
+        // Size to the image only, not the caption
         canvas.width = img.offsetWidth;
         canvas.height = img.offsetHeight;
       }
 
       window.addEventListener('resize', sizeCanvas);
 
-      // Generate jagged lightning path from point along a direction
       function generateArc(x0, y0, angle, length) {
         var points = [];
         var segments = 12 + Math.floor(Math.random() * 8);
@@ -2010,7 +2009,6 @@
         points.push({ x: cx, y: cy });
 
         for (var i = 0; i < segments; i++) {
-          // Main direction with jitter
           var jitter = (Math.random() - 0.5) * segLen * 1.4;
           cx += Math.cos(angle) * segLen + Math.sin(angle) * jitter;
           cy += Math.sin(angle) * segLen + Math.cos(angle) * jitter;
@@ -2019,9 +2017,7 @@
         return points;
       }
 
-      // Draw a single arc with fade
-      function drawArc(points, progress) {
-        // progress: 0 to 1 (lifecycle of the arc)
+      function drawAllArcs(arcSets, progress) {
         var alpha;
         if (progress < 0.15) {
           alpha = (progress / 0.15) * 0.18;
@@ -2033,35 +2029,41 @@
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // How many segments to reveal (progressive draw)
-        var drawCount = Math.floor(points.length * Math.min(progress / 0.3, 1));
-        if (drawCount < 2) drawCount = 2;
+        var drawCount;
+        for (var a = 0; a < arcSets.length; a++) {
+          var points = arcSets[a];
+          drawCount = Math.floor(points.length * Math.min(progress / 0.3, 1));
+          if (drawCount < 2) drawCount = 2;
 
-        // Main bolt
-        ctx.beginPath();
-        ctx.moveTo(points[0].x, points[0].y);
-        for (var i = 1; i < drawCount; i++) {
-          ctx.lineTo(points[i].x, points[i].y);
-        }
-        ctx.strokeStyle = 'rgba(6, 182, 212, ' + alpha + ')';
-        ctx.lineWidth = 1.5;
-        ctx.shadowColor = 'rgba(6, 182, 212, ' + (alpha * 0.6) + ')';
-        ctx.shadowBlur = 8;
-        ctx.stroke();
+          // Thinner for secondary arcs
+          var lw = a === 0 ? 1.5 : 0.8 + Math.random() * 0.4;
+          var arcAlpha = a === 0 ? alpha : alpha * (0.4 + Math.random() * 0.3);
 
-        // Thin branch off a random midpoint
-        if (drawCount > 4) {
-          var bi = 2 + Math.floor(Math.random() * (drawCount - 3));
-          var bp = points[bi];
-          var branchAngle = Math.atan2(points[bi].y - points[bi - 1].y, points[bi].x - points[bi - 1].x) + (Math.random() - 0.5) * 1.2;
           ctx.beginPath();
-          ctx.moveTo(bp.x, bp.y);
-          var bLen = 15 + Math.random() * 25;
-          ctx.lineTo(bp.x + Math.cos(branchAngle) * bLen, bp.y + Math.sin(branchAngle) * bLen);
-          ctx.strokeStyle = 'rgba(6, 182, 212, ' + (alpha * 0.5) + ')';
-          ctx.lineWidth = 0.8;
-          ctx.shadowBlur = 4;
+          ctx.moveTo(points[0].x, points[0].y);
+          for (var i = 1; i < drawCount; i++) {
+            ctx.lineTo(points[i].x, points[i].y);
+          }
+          ctx.strokeStyle = 'rgba(6, 182, 212, ' + arcAlpha + ')';
+          ctx.lineWidth = lw;
+          ctx.shadowColor = 'rgba(6, 182, 212, ' + (arcAlpha * 0.6) + ')';
+          ctx.shadowBlur = 8;
           ctx.stroke();
+
+          // Branch on primary arc
+          if (a === 0 && drawCount > 4) {
+            var bi = 2 + Math.floor(Math.random() * (drawCount - 3));
+            var bp = points[bi];
+            var branchAngle = Math.atan2(points[bi].y - points[bi - 1].y, points[bi].x - points[bi - 1].x) + (Math.random() - 0.5) * 1.2;
+            ctx.beginPath();
+            ctx.moveTo(bp.x, bp.y);
+            var bLen = 15 + Math.random() * 25;
+            ctx.lineTo(bp.x + Math.cos(branchAngle) * bLen, bp.y + Math.sin(branchAngle) * bLen);
+            ctx.strokeStyle = 'rgba(6, 182, 212, ' + (arcAlpha * 0.5) + ')';
+            ctx.lineWidth = 0.8;
+            ctx.shadowBlur = 4;
+            ctx.stroke();
+          }
         }
 
         ctx.shadowBlur = 0;
@@ -2072,15 +2074,37 @@
         arcActive = true;
         sizeCanvas();
 
+        // Clamp entry point to image bounds
+        entryX = Math.max(0, Math.min(entryX, canvas.width));
+        entryY = Math.max(0, Math.min(entryY, canvas.height));
+
         // Perpendicular to entry velocity
         var mag = Math.sqrt(velX * velX + velY * velY);
-        if (mag < 0.5) { velX = 1; velY = 0; mag = 1; }
+        // Determine entry edge to get a reliable direction when velocity is weak
+        if (mag < 2) {
+          // Infer from which edge the mouse entered
+          var fromLeft = entryX;
+          var fromRight = canvas.width - entryX;
+          var fromTop = entryY;
+          var fromBottom = canvas.height - entryY;
+          var minEdge = Math.min(fromLeft, fromRight, fromTop, fromBottom);
+          if (minEdge === fromLeft) { velX = 1; velY = 0; }
+          else if (minEdge === fromRight) { velX = -1; velY = 0; }
+          else if (minEdge === fromTop) { velX = 0; velY = 1; }
+          else { velX = 0; velY = -1; }
+        }
+
         var perpAngle = Math.atan2(velY, velX) + Math.PI / 2;
-        // Randomly flip direction
         if (Math.random() > 0.5) perpAngle += Math.PI;
 
-        var length = Math.max(canvas.width, canvas.height) * (0.4 + Math.random() * 0.3);
-        var points = generateArc(entryX, entryY, perpAngle, length);
+        // 1-3 arcs from the same origin with slight trajectory variation
+        var arcCount = 1 + Math.floor(Math.random() * 3);
+        var arcSets = [];
+        for (var a = 0; a < arcCount; a++) {
+          var spread = a === 0 ? 0 : (Math.random() - 0.5) * 0.6;
+          var length = Math.max(canvas.width, canvas.height) * (0.3 + Math.random() * 0.35);
+          arcSets.push(generateArc(entryX, entryY, perpAngle + spread, length));
+        }
 
         var duration = 220 + Math.random() * 80;
         var start = null;
@@ -2090,7 +2114,7 @@
           var elapsed = ts - start;
           var progress = Math.min(elapsed / duration, 1);
 
-          drawArc(points, progress);
+          drawAllArcs(arcSets, progress);
 
           if (progress < 1) {
             requestAnimationFrame(animate);
@@ -2103,7 +2127,7 @@
         requestAnimationFrame(animate);
       }
 
-      // Track mouse to compute velocity at entry
+      // Track mouse velocity
       var prevX = null, prevY = null, prevT = null;
 
       document.addEventListener('mousemove', function(e) {
@@ -2113,15 +2137,14 @@
       });
 
       wrap.addEventListener('mouseenter', function(e) {
-        var rect = wrap.getBoundingClientRect();
-        var localX = e.clientX - rect.left;
-        var localY = e.clientY - rect.top;
+        var imgRect = img.getBoundingClientRect();
+        var localX = e.clientX - imgRect.left;
+        var localY = e.clientY - imgRect.top;
 
-        // Velocity from recent mouse movement
-        var velX = 1, velY = 0;
+        var velX = 0, velY = 0;
         if (prevX !== null && prevT !== null) {
           var dt = performance.now() - prevT;
-          if (dt < 100 && dt > 0) {
+          if (dt < 150 && dt > 0) {
             velX = e.clientX - prevX;
             velY = e.clientY - prevY;
           }
