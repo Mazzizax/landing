@@ -946,6 +946,44 @@
       }
     }
 
+    /* ---- FLEET HOTSPOTS ---- */
+    .fleet-hotspot {
+      border-radius: 2px;
+      transition: none;
+    }
+    .fleet-hotspot .hotspot-glow {
+      position: absolute;
+      inset: 0;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      transition: border-color 0.3s, box-shadow 0.3s;
+      pointer-events: none;
+    }
+    .fleet-hotspot:hover .hotspot-glow {
+      border-color: rgba(6, 182, 212, 0.3);
+      box-shadow: inset 0 0 12px rgba(6, 182, 212, 0.08), 0 0 16px rgba(6, 182, 212, 0.1);
+    }
+    .fleet-hotspot .hotspot-label {
+      position: absolute;
+      bottom: 105%;
+      left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      color: var(--cyan-bright);
+      letter-spacing: 0.1em;
+      background: rgba(3, 7, 18, 0.9);
+      border: 1px solid rgba(6, 182, 212, 0.2);
+      padding: 4px 10px;
+      opacity: 0;
+      transition: opacity 0.25s;
+      pointer-events: none;
+    }
+    .fleet-hotspot:hover .hotspot-label {
+      opacity: 1;
+    }
+
     @media (max-width: 640px) {
       body { font-size: 16px; }
 
@@ -1594,7 +1632,34 @@
             <div style="display:flex;flex-direction:column;gap:24px;">
               <div id="fleet-image-wrap" style="position:relative;overflow:hidden;cursor:default;">
                 <img id="fleet-img" src="images/fleet-command.jpg" alt="The Mazzizax Fleet — command center" style="width:100%;border:1px solid var(--border-color);display:block;">
-                <canvas id="fleet-arc-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;"></canvas>
+                <canvas id="fleet-arc-canvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:2;"></canvas>
+
+                <!-- HOTSPOTS -->
+                <div id="fleet-hotspots" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:3;pointer-events:none;">
+
+                  <!-- Army Duffle — right side, hanging on door -->
+                  <div class="fleet-hotspot" data-type="relic" data-label="Army Duffle Bag" data-target="#relics"
+                    style="position:absolute;left:76%;top:2%;width:16%;height:28%;pointer-events:auto;cursor:pointer;">
+                    <div class="hotspot-glow"></div>
+                    <div class="hotspot-label">SAGE RELIC: ARMY DUFFLE BAG</div>
+                  </div>
+
+                  <!-- The Staff — right side, diagonal behind duffle -->
+                  <div class="fleet-hotspot" data-type="relic" data-label="Sage Staff of Revolution" data-target="#relics"
+                    style="position:absolute;left:68%;top:8%;width:8%;height:55%;pointer-events:auto;cursor:pointer;">
+                    <div class="hotspot-glow"></div>
+                    <div class="hotspot-label">SAGE RELIC: THE SAGE STAFF OF REVOLUTION</div>
+                  </div>
+
+                  <!-- ATA Black Belt — left side, on desk edge -->
+                  <div class="fleet-hotspot" data-type="relic" data-label="ATA Black Belt" data-target="#relics"
+                    style="position:absolute;left:2%;top:28%;width:14%;height:8%;pointer-events:auto;cursor:pointer;">
+                    <div class="hotspot-glow"></div>
+                    <div class="hotspot-label">SAGE RELIC: ATA BLACK BELT</div>
+                  </div>
+
+                </div>
+
                 <div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-dim);letter-spacing:0.05em;margin-top:8px;text-align:center;">The Mazzizax Fleet</div>
               </div>
             </div>
@@ -2503,6 +2568,22 @@
         fireArc(localX, localY, velX, velY);
       });
 
+    })();
+
+    // ============================================================
+    // FLEET HOTSPOT CLICK HANDLERS
+    // ============================================================
+    (function() {
+      var hotspots = document.querySelectorAll('.fleet-hotspot');
+      hotspots.forEach(function(spot) {
+        spot.addEventListener('click', function(e) {
+          e.stopPropagation();
+          var target = spot.getAttribute('data-target');
+          if (target) {
+            window.location.hash = target;
+          }
+        });
+      });
     })();
   </script>
 
