@@ -2258,18 +2258,36 @@
         requestAnimationFrame(animateStorm);
       }
 
-      // ---- SCROLL ZOOM ----
+      // ---- STORM THROTTLE ----
+      var lastStormTime = 0;
+      var stormCooldown = 300; // ms between storms
+
+      function tryStorm() {
+        var now = performance.now();
+        if (now - lastStormTime < stormCooldown) return;
+        lastStormTime = now;
+        fireStorm();
+      }
+
+      // ---- SCROLL ZOOM (mouse wheel + trackpad) ----
       wrap.addEventListener('wheel', function(e) {
         e.preventDefault();
 
         var prevZoom = zoomLevel;
-        if (e.deltaY < 0) {
-          zoomLevel = Math.min(zoomMax, zoomLevel + zoomStep);
+
+        // Trackpads send small deltaY with ctrlKey for pinch gestures
+        if (e.ctrlKey) {
+          // Pinch gesture on trackpad
+          zoomLevel = Math.min(zoomMax, Math.max(zoomMin, zoomLevel - e.deltaY * 0.02));
         } else {
-          zoomLevel = Math.max(zoomMin, zoomLevel - zoomStep);
+          if (e.deltaY < 0) {
+            zoomLevel = Math.min(zoomMax, zoomLevel + zoomStep);
+          } else {
+            zoomLevel = Math.max(zoomMin, zoomLevel - zoomStep);
+          }
         }
 
-        if (zoomLevel === zoomMin && prevZoom === zoomMin) return;
+        if (zoomLevel === prevZoom) return;
 
         // Zoom toward mouse position
         if (zoomLevel > zoomMin) {
@@ -2279,19 +2297,21 @@
           var scale = zoomLevel / prevZoom;
           panX = panX - mouseX * (scale - 1);
           panY = panY - mouseY * (scale - 1);
+        } else {
+          panX = 0; panY = 0;
         }
 
         clampPan();
         applyTransform();
         wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
 
-        // Fire storm on zoom in (testing: every zoom)
-        if (zoomLevel > prevZoom && prevZoom <= zoomMin) {
-          fireStorm();
+        // Storm on every zoom change
+        if (zoomLevel !== prevZoom) {
+          tryStorm();
         }
       }, { passive: false });
 
-      // ---- PAN WHEN ZOOMED ----
+      // ---- MOUSE PAN WHEN ZOOMED ----
       wrap.addEventListener('mousedown', function(e) {
         if (zoomLevel <= 1) return;
         isPanning = true;
@@ -2318,6 +2338,130 @@
           wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
         }
       });
+
+      // ---- TOUCH: PINCH TO ZOOM + PAN ----
+      var touches = {};
+      var lastPinchDist = null;
+      var touchPanning = false;
+      var touchStartX = 0, touchStartY = 0;
+      var touchPanOriginX = 0, touchPanOriginY = 0;
+
+      function getTouchDist(t1, t2) {
+        var dx = t1.clientX - t2.clientX;
+        var dy = t1.clientY - t2.clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+
+      function getTouchCenter(t1, t2) {
+        return {
+          x: (t1.clientX + t2.clientX) / 2,
+          y: (t1.clientY + t2.clientY) / 2
+        };
+      }
+
+      wrap.addEventListener('touchstart', function(e) {
+        if (e.touches.length === 1 && zoomLevel > 1) {
+          // Single finger pan when zoomed
+          touchPanning = true;
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchPanOriginX = panX;
+          touchPanOriginY = panY;
+        }
+        if (e.touches.length === 2) {
+          // Pinch start
+          touchPanning = false;
+          lastPinchDist = getTouchDist(e.touches[0], e.touches[1]);
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      wrap.addEventListener('touchmove', function(e) {
+        if (e.touches.length === 2 && lastPinchDist !== null) {
+          e.preventDefault();
+          var prevZoom = zoomLevel;
+          var dist = getTouchDist(e.touches[0], e.touches[1]);
+          var scale = dist / lastPinchDist;
+          zoomLevel = Math.min(zoomMax, Math.max(zoomMin, zoomLevel * scale));
+          lastPinchDist = dist;
+
+          // Zoom toward pinch center
+          var center = getTouchCenter(e.touches[0], e.touches[1]);
+          var imgRect = img.getBoundingClientRect();
+          var cx = (center.x - imgRect.left) / prevZoom - panX;
+          var cy = (center.y - imgRect.top) / prevZoom - panY;
+          var s = zoomLevel / prevZoom;
+          panX = panX - cx * (s - 1);
+          panY = panY - cy * (s - 1);
+
+          if (zoomLevel <= zoomMin) { panX = 0; panY = 0; }
+          clampPan();
+          applyTransform();
+
+          if (zoomLevel !== prevZoom) {
+            tryStorm();
+          }
+        } else if (e.touches.length === 1 && touchPanning) {
+          e.preventDefault();
+          panX = touchPanOriginX + (e.touches[0].clientX - touchStartX) / zoomLevel;
+          panY = touchPanOriginY + (e.touches[0].clientY - touchStartY) / zoomLevel;
+          clampPan();
+          applyTransform();
+        }
+      }, { passive: false });
+
+      wrap.addEventListener('touchend', function(e) {
+        if (e.touches.length < 2) {
+          lastPinchDist = null;
+        }
+        if (e.touches.length === 0) {
+          touchPanning = false;
+        }
+        // Single tap fires arc on touch devices
+        if (e.changedTouches.length === 1 && !touchPanning && zoomLevel <= 1) {
+          var t = e.changedTouches[0];
+          var imgRect = img.getBoundingClientRect();
+          var lx = t.clientX - imgRect.left;
+          var ly = t.clientY - imgRect.top;
+          if (lx >= 0 && ly >= 0 && lx <= imgRect.width && ly <= imgRect.height) {
+            // Random direction since no velocity on tap
+            var angle = Math.random() * Math.PI * 2;
+            fireArc(lx, ly, Math.cos(angle), Math.sin(angle));
+          }
+        }
+      });
+
+      // Prevent default zoom on the image for iOS
+      wrap.addEventListener('gesturestart', function(e) { e.preventDefault(); }, { passive: false });
+      wrap.addEventListener('gesturechange', function(e) { e.preventDefault(); }, { passive: false });
+
+      // ---- DOUBLE TAP TO RESET ZOOM (mobile) ----
+      var lastTapTime = 0;
+      wrap.addEventListener('touchstart', function(e) {
+        if (e.touches.length !== 1) return;
+        var now = Date.now();
+        if (now - lastTapTime < 300) {
+          // Double tap
+          if (zoomLevel > 1) {
+            zoomLevel = 1; panX = 0; panY = 0;
+            applyTransform();
+            tryStorm();
+          } else {
+            zoomLevel = 2.5;
+            var t = e.touches[0];
+            var imgRect = img.getBoundingClientRect();
+            var cx = (t.clientX - imgRect.left) / 1 - panX;
+            var cy = (t.clientY - imgRect.top) / 1 - panY;
+            panX = -cx * (zoomLevel - 1);
+            panY = -cy * (zoomLevel - 1);
+            clampPan();
+            applyTransform();
+            tryStorm();
+          }
+          e.preventDefault();
+        }
+        lastTapTime = now;
+      }, { passive: false });
 
       // ---- TRACK MOUSE FOR HOVER ARC ----
       var prevX = null, prevY = null, prevT = null;
