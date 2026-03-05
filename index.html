@@ -2141,15 +2141,16 @@
       }
 
       // ---- CONVERGENCE STORM ----
-      function fireStorm() {
+      // targetX/targetY: convergence point in image-local coords
+      function fireStorm(targetX, targetY) {
         stormActive = true;
         arcActive = false;
         sizeCanvas();
 
         var w = canvas.width;
         var h = canvas.height;
-        var cx = w / 2;
-        var cy = h / 2;
+        var cx = (targetX !== undefined) ? targetX : w / 2;
+        var cy = (targetY !== undefined) ? targetY : h / 2;
 
         // 25-30 arcs from random edge positions converging to center
         var totalArcs = 25 + Math.floor(Math.random() * 6);
@@ -2262,11 +2263,11 @@
       var lastStormTime = 0;
       var stormCooldown = 300; // ms between storms
 
-      function tryStorm() {
+      function tryStorm(tx, ty) {
         var now = performance.now();
         if (now - lastStormTime < stormCooldown) return;
         lastStormTime = now;
-        fireStorm();
+        fireStorm(tx, ty);
       }
 
       // ---- SCROLL ZOOM (mouse wheel + trackpad) ----
@@ -2305,9 +2306,15 @@
         applyTransform();
         wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
 
-        // Storm on every zoom change
+        // Storm on every zoom change — converge on mouse
         if (zoomLevel !== prevZoom) {
-          tryStorm();
+          var _imgRect = img.getBoundingClientRect();
+          var _mx = e.clientX - _imgRect.left;
+          var _my = e.clientY - _imgRect.top;
+          // Convert screen coords to canvas coords (account for current zoom/pan)
+          var stormX = _mx / zoomLevel;
+          var stormY = _my / zoomLevel;
+          tryStorm(stormX, stormY);
         }
       }, { passive: false });
 
@@ -2399,7 +2406,9 @@
           applyTransform();
 
           if (zoomLevel !== prevZoom) {
-            tryStorm();
+            var _tc = getTouchCenter(e.touches[0], e.touches[1]);
+            var _tr = img.getBoundingClientRect();
+            tryStorm((_tc.x - _tr.left) / zoomLevel, (_tc.y - _tr.top) / zoomLevel);
           }
         } else if (e.touches.length === 1 && touchPanning) {
           e.preventDefault();
@@ -2445,18 +2454,22 @@
           if (zoomLevel > 1) {
             zoomLevel = 1; panX = 0; panY = 0;
             applyTransform();
-            tryStorm();
+            var _dt = e.touches[0];
+            var _dr = img.getBoundingClientRect();
+            tryStorm((_dt.clientX - _dr.left), (_dt.clientY - _dr.top));
           } else {
             zoomLevel = 2.5;
             var t = e.touches[0];
             var imgRect = img.getBoundingClientRect();
-            var cx = (t.clientX - imgRect.left) / 1 - panX;
-            var cy = (t.clientY - imgRect.top) / 1 - panY;
+            var tapX = (t.clientX - imgRect.left);
+            var tapY = (t.clientY - imgRect.top);
+            var cx = tapX / 1 - panX;
+            var cy = tapY / 1 - panY;
             panX = -cx * (zoomLevel - 1);
             panY = -cy * (zoomLevel - 1);
             clampPan();
             applyTransform();
-            tryStorm();
+            tryStorm(tapX, tapY);
           }
           e.preventDefault();
         }
