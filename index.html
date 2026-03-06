@@ -991,6 +991,10 @@
       padding: 8px 12px;
       font-size: 0.55rem;
     }
+    .fleet-hotspot .hotspot-label.label-right {
+      left: 0;
+      transform: translateX(0);
+    }
     .fleet-hotspot .hotspot-label.machine-label strong {
       font-size: 0.6rem;
       color: white;
@@ -1692,11 +1696,7 @@
                     <div class="hotspot-glow"></div>
                     <div class="hotspot-label machine-label">
                       <strong>MERLIN — The Spirit</strong><br>
-                      GMKtec NucBox EVO-X2<br>
-                      AMD Ryzen AI MAX+ 395 (Zen 5) 16c/32t<br>
-                      128 GB LPDDR5x-8000 &middot; 2 TB Lexar NVMe<br>
-                      Radeon 8060S (40 CU) &middot; XDNA 2 NPU 50 TOPS<br>
-                      AI Inference Node
+                      GMKtec NucBox EVO-X2
                     </div>
                   </div>
 
@@ -1727,7 +1727,7 @@
                   <div class="fleet-hotspot" data-type="machine" data-label="Raiden"
                     style="position:absolute;left:13%;top:37.5%;width:5%;height:10%;pointer-events:auto;cursor:default;">
                     <div class="hotspot-glow"></div>
-                    <div class="hotspot-label machine-label">
+                    <div class="hotspot-label machine-label label-right">
                       <strong>RAIDEN — The Mind</strong><br>
                       HP Desktop &middot; AMD Ryzen 7 &middot; 32 GB DDR5<br>
                       Central Hub &middot; Orchestrator<br>
@@ -1739,7 +1739,7 @@
                   <div class="fleet-hotspot" data-type="machine" data-label="Gamabunta"
                     style="position:absolute;left:32.5%;top:43.5%;width:6%;height:6%;pointer-events:auto;cursor:pointer;">
                     <div class="hotspot-glow"></div>
-                    <div class="hotspot-label machine-label">
+                    <div class="hotspot-label machine-label label-right">
                       <strong>GAMABUNTA — Boss Toad</strong><br>
                       Custom Rooted Pixel 9a<br>
                       <span style="color:var(--cyan-bright);font-size:0.5rem;">[CLICK FOR GALLERY]</span>
@@ -2171,9 +2171,15 @@
       function sizeCanvas() {
         canvas.width = img.offsetWidth;
         canvas.height = img.offsetHeight;
+        // Keep hotspot layer sized to image, not wrapper
+        if (hotspotLayer) {
+          hotspotLayer.style.width = img.offsetWidth + 'px';
+          hotspotLayer.style.height = img.offsetHeight + 'px';
+        }
       }
 
       var hotspotLayer = document.getElementById('fleet-hotspots');
+      var hotspotLabels = hotspotLayer ? hotspotLayer.querySelectorAll('.hotspot-label') : [];
 
       function applyTransform() {
         var t = 'scale(' + zoomLevel + ') translate(' + panX + 'px, ' + panY + 'px)';
@@ -2184,6 +2190,12 @@
         if (hotspotLayer) {
           hotspotLayer.style.transformOrigin = '0 0';
           hotspotLayer.style.transform = t;
+        }
+        // Counter-scale labels so they stay readable at any zoom
+        var invScale = 1 / zoomLevel;
+        for (var i = 0; i < hotspotLabels.length; i++) {
+          var isRight = hotspotLabels[i].classList.contains('label-right');
+          hotspotLabels[i].style.transform = (isRight ? 'translateX(0)' : 'translateX(-50%)') + ' scale(' + invScale + ')';
         }
       }
 
@@ -2196,6 +2208,8 @@
       }
 
       window.addEventListener('resize', sizeCanvas);
+      img.addEventListener('load', sizeCanvas);
+      sizeCanvas();
 
       // ---- ARC GENERATOR ----
       function generateArc(x0, y0, angle, length) {
