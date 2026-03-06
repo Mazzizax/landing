@@ -1696,7 +1696,8 @@
                     <div class="hotspot-glow"></div>
                     <div class="hotspot-label machine-label">
                       <strong>MERLIN — The Spirit</strong><br>
-                      GMKtec NucBox EVO-X2
+                      GMKtec NucBox EVO-X2<br>
+                      AI Inference Node
                     </div>
                   </div>
 
@@ -1705,10 +1706,9 @@
                     style="position:absolute;left:58%;top:42%;width:12%;height:10%;pointer-events:auto;cursor:default;">
                     <div class="hotspot-glow"></div>
                     <div class="hotspot-label machine-label">
-                      <strong>CHARLEMAGNE — The Admiral</strong><br>
-                      HP Laptop &middot; AMD Ryzen 7<br>
-                      Windows 11 Pro<br>
-                      Mobile Command Terminal
+                      <strong>CHARLEMAGNE — Field Commander</strong><br>
+                      AMD Ryzen 7<br>
+                      Disposable Command Terminal
                     </div>
                   </div>
 
@@ -1718,8 +1718,8 @@
                     <div class="hotspot-glow"></div>
                     <div class="hotspot-label machine-label">
                       <strong>REPTILE — The Body</strong><br>
-                      HP Desktop &middot; AMD Ryzen 5 &middot; 6 GB DDR3<br>
-                      Cold Storage &middot; Secondary Worker
+                      AMD Ryzen 5<br>
+                      Cold Storage &middot; Network Guardian
                     </div>
                   </div>
 
@@ -1729,9 +1729,8 @@
                     <div class="hotspot-glow"></div>
                     <div class="hotspot-label machine-label label-right">
                       <strong>RAIDEN — The Mind</strong><br>
-                      HP Desktop &middot; AMD Ryzen 7 &middot; 32 GB DDR5<br>
-                      Central Hub &middot; Orchestrator<br>
-                      All Repos &middot; Build System &middot; Task Queue
+                      AMD Ryzen 7<br>
+                      Orchestrator
                     </div>
                   </div>
 
@@ -1740,7 +1739,7 @@
                     style="position:absolute;left:32.5%;top:43.5%;width:6%;height:6%;pointer-events:auto;cursor:pointer;">
                     <div class="hotspot-glow"></div>
                     <div class="hotspot-label machine-label label-right">
-                      <strong>GAMABUNTA — Boss Toad</strong><br>
+                      <strong>GAMABUNTA — Boss <span style="position:relative;display:inline-block;"><span>T</span><span style="position:absolute;left:0;top:0;color:rgba(6,182,212,0.5);">N</span></span>oad</strong><br>
                       Custom Rooted Pixel 9a<br>
                       <span style="color:var(--cyan-bright);font-size:0.5rem;">[CLICK FOR GALLERY]</span>
                     </div>
@@ -2000,6 +1999,23 @@
       document.getElementById('cascade-sidebar').classList.toggle('open');
     });
   </script>
+
+  <!-- GAMABUNTA SLIDESHOW MODAL -->
+  <div id="gama-slideshow" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(3,7,18,0.95);backdrop-filter:blur(8px);align-items:center;justify-content:center;flex-direction:column;">
+    <button id="gama-close" style="position:absolute;top:20px;right:24px;background:none;border:none;color:#475569;font-size:1.8rem;cursor:pointer;font-family:var(--font-mono);z-index:2;transition:color 0.2s;" onmouseover="this.style.color='#ff1744'" onmouseout="this.style.color='#475569'">&times;</button>
+
+    <div style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-dim);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:16px;"><strong style="color:white;">GAMABUNTA</strong> — Boss <span style="position:relative;display:inline-block;"><span>T</span><span style="position:absolute;left:0;top:0;color:rgba(6,182,212,0.5);">N</span></span>oad</div>
+
+    <div style="position:relative;width:90%;max-width:500px;aspect-ratio:9/16;overflow:hidden;">
+      <img id="gama-slide" style="width:100%;height:100%;object-fit:contain;display:block;transition:opacity 0.3s;">
+    </div>
+
+    <div style="display:flex;align-items:center;gap:24px;margin-top:20px;">
+      <button id="gama-prev" style="background:none;border:1px solid rgba(6,182,212,0.2);color:var(--cyan-bright);font-family:var(--font-mono);font-size:0.7rem;padding:8px 16px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--cyan-bright)'" onmouseout="this.style.borderColor='rgba(6,182,212,0.2)'">&larr;</button>
+      <span id="gama-counter" style="font-family:var(--font-mono);font-size:0.6rem;color:var(--text-dim);letter-spacing:0.1em;">1 / 5</span>
+      <button id="gama-next" style="background:none;border:1px solid rgba(6,182,212,0.2);color:var(--cyan-bright);font-family:var(--font-mono);font-size:0.7rem;padding:8px 16px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--cyan-bright)'" onmouseout="this.style.borderColor='rgba(6,182,212,0.2)'">&rarr;</button>
+    </div>
+  </div>
 
   <!-- RELIC DETAIL MODAL -->
   <div id="relic-modal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(3,7,18,0.92);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px;">
@@ -2691,6 +2707,81 @@
     })();
 
     // ============================================================
+    // GAMABUNTA SLIDESHOW
+    // ============================================================
+    (function() {
+      var slides = [
+        'images/gama-boot.jpg',
+        'images/gama-command.jpg',
+        'images/gama-heartbeat.jpg',
+        'images/gama-weave.jpg',
+        'images/gama-synapse.jpg'
+      ];
+      var idx = 0;
+      var modal = document.getElementById('gama-slideshow');
+      var slideImg = document.getElementById('gama-slide');
+      var counter = document.getElementById('gama-counter');
+      var prevBtn = document.getElementById('gama-prev');
+      var nextBtn = document.getElementById('gama-next');
+      var closeBtn = document.getElementById('gama-close');
+
+      function show() {
+        slideImg.src = slides[idx];
+        counter.textContent = (idx + 1) + ' / ' + slides.length;
+      }
+
+      window.openGamaSlideshow = function() {
+        idx = 0;
+        show();
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      };
+
+      closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+      });
+
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = '';
+        }
+      });
+
+      prevBtn.addEventListener('click', function() {
+        idx = (idx - 1 + slides.length) % slides.length;
+        show();
+      });
+
+      nextBtn.addEventListener('click', function() {
+        idx = (idx + 1) % slides.length;
+        show();
+      });
+
+      // Keyboard nav
+      document.addEventListener('keydown', function(e) {
+        if (modal.style.display !== 'flex') return;
+        if (e.key === 'ArrowLeft') { prevBtn.click(); }
+        else if (e.key === 'ArrowRight') { nextBtn.click(); }
+        else if (e.key === 'Escape') { closeBtn.click(); }
+      });
+
+      // Swipe support
+      var touchStartX = 0;
+      modal.addEventListener('touchstart', function(e) {
+        touchStartX = e.touches[0].clientX;
+      });
+      modal.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 50) {
+          if (dx < 0) nextBtn.click();
+          else prevBtn.click();
+        }
+      });
+    })();
+
+    // ============================================================
     // RELIC MODAL SYSTEM
     // ============================================================
     (function() {
@@ -2786,13 +2877,17 @@
         }
       });
 
-      // Hotspot clicks open relic modal
+      // Hotspot clicks — relics open modal, Gamabunta opens slideshow
       var hotspots = document.querySelectorAll('.fleet-hotspot');
       hotspots.forEach(function(spot) {
         spot.addEventListener('click', function(e) {
           e.stopPropagation();
+          var type = spot.getAttribute('data-type');
           var label = spot.getAttribute('data-label');
-          if (label) {
+
+          if (label === 'Gamabunta' && window.openGamaSlideshow) {
+            window.openGamaSlideshow();
+          } else if (type === 'relic' && label) {
             openRelicModal(label);
           }
         });
