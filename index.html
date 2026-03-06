@@ -995,6 +995,11 @@
       left: 0;
       transform: translateX(0);
     }
+    .fleet-hotspot .hotspot-label.label-left {
+      left: auto;
+      right: 0;
+      transform: translateX(0);
+    }
     .fleet-hotspot .hotspot-label.machine-label strong {
       font-size: 0.6rem;
       color: white;
@@ -1669,7 +1674,7 @@
                   <div class="fleet-hotspot" data-type="relic" data-label="Army Duffle Bag" data-target="#relics"
                     style="position:absolute;left:88%;top:44%;width:12%;height:28%;pointer-events:auto;cursor:pointer;">
                     <div class="hotspot-glow"></div>
-                    <div class="hotspot-label">SAGE RELIC: ARMY DUFFLE BAG</div>
+                    <div class="hotspot-label label-left">SAGE RELIC: ARMY DUFFLE BAG</div>
                   </div>
 
                   <!-- The Staff — right side, diagonal behind duffle -->
@@ -1683,7 +1688,7 @@
                   <div class="fleet-hotspot" data-type="relic" data-label="ATA Black Belt" data-target="#relics"
                     style="position:absolute;left:2%;top:47%;width:7%;height:3%;pointer-events:auto;cursor:pointer;">
                     <div class="hotspot-glow"></div>
-                    <div class="hotspot-label">SAGE RELIC: ATA BLACK BELT</div>
+                    <div class="hotspot-label label-right">SAGE RELIC: ATA BLACK BELT</div>
                   </div>
 
                   <!-- === MACHINES === -->
@@ -2296,8 +2301,8 @@
         // Counter-scale labels so they stay readable at any zoom
         var invScale = 1 / zoomLevel;
         for (var i = 0; i < hotspotLabels.length; i++) {
-          var isRight = hotspotLabels[i].classList.contains('label-right');
-          hotspotLabels[i].style.transform = (isRight ? 'translateX(0)' : 'translateX(-50%)') + ' scale(' + invScale + ')';
+          var isAnchored = hotspotLabels[i].classList.contains('label-right') || hotspotLabels[i].classList.contains('label-left');
+          hotspotLabels[i].style.transform = (isAnchored ? 'translateX(0)' : 'translateX(-50%)') + ' scale(' + invScale + ')';
         }
       }
 
