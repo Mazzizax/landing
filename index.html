@@ -2267,12 +2267,16 @@
 
       // Zoom state
       var zoomLevel = 1;
+      var zoomTarget = 1;
       var zoomMin = 1;
       var zoomMax = 4;
       var zoomStep = 0.15;
       var panX = 0, panY = 0;
+      var panTargetX = 0, panTargetY = 0;
       var isPanning = false;
       var panStartX = 0, panStartY = 0;
+      var animating = false;
+      var LERP = 0.18;
       var panOriginX = 0, panOriginY = 0;
 
       function sizeCanvas() {
@@ -2312,6 +2316,44 @@
         var maxPanY = (img.offsetHeight * (zoomLevel - 1)) / zoomLevel;
         panX = Math.min(0, Math.max(-maxPanX, panX));
         panY = Math.min(0, Math.max(-maxPanY, panY));
+      }
+
+      function clampTargetPan() {
+        if (zoomTarget <= 1) { panTargetX = 0; panTargetY = 0; return; }
+        var maxPanX = (img.offsetWidth * (zoomTarget - 1)) / zoomTarget;
+        var maxPanY = (img.offsetHeight * (zoomTarget - 1)) / zoomTarget;
+        panTargetX = Math.min(0, Math.max(-maxPanX, panTargetX));
+        panTargetY = Math.min(0, Math.max(-maxPanY, panTargetY));
+      }
+
+      function animateZoom() {
+        var dz = zoomTarget - zoomLevel;
+        var dx = panTargetX - panX;
+        var dy = panTargetY - panY;
+        if (Math.abs(dz) < 0.001 && Math.abs(dx) < 0.05 && Math.abs(dy) < 0.05) {
+          zoomLevel = zoomTarget;
+          panX = panTargetX;
+          panY = panTargetY;
+          clampPan();
+          applyTransform();
+          animating = false;
+          wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
+          return;
+        }
+        zoomLevel += dz * LERP;
+        panX += dx * LERP;
+        panY += dy * LERP;
+        clampPan();
+        applyTransform();
+        wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
+        requestAnimationFrame(animateZoom);
+      }
+
+      function startAnim() {
+        if (!animating) {
+          animating = true;
+          requestAnimationFrame(animateZoom);
+        }
       }
 
       window.addEventListener('resize', sizeCanvas);
@@ -2566,48 +2608,43 @@
       wrap.addEventListener('wheel', function(e) {
         e.preventDefault();
 
-        var prevZoom = zoomLevel;
+        var prevTarget = zoomTarget;
 
         // Trackpads send small deltaY with ctrlKey for pinch gestures
         if (e.ctrlKey) {
-          // Pinch gesture on trackpad
-          zoomLevel = Math.min(zoomMax, Math.max(zoomMin, zoomLevel - e.deltaY * 0.02));
+          zoomTarget = Math.min(zoomMax, Math.max(zoomMin, zoomTarget - e.deltaY * 0.02));
         } else {
           if (e.deltaY < 0) {
-            zoomLevel = Math.min(zoomMax, zoomLevel + zoomStep);
+            zoomTarget = Math.min(zoomMax, zoomTarget + zoomStep);
           } else {
-            zoomLevel = Math.max(zoomMin, zoomLevel - zoomStep);
+            zoomTarget = Math.max(zoomMin, zoomTarget - zoomStep);
           }
         }
 
-        if (zoomLevel === prevZoom) return;
+        if (zoomTarget === prevTarget) return;
 
-        // Zoom toward mouse position
-        if (zoomLevel > zoomMin) {
+        // Calculate pan target toward mouse position
+        if (zoomTarget > zoomMin) {
           var imgRect = img.getBoundingClientRect();
-          var mouseX = (e.clientX - imgRect.left) / prevZoom - panX;
-          var mouseY = (e.clientY - imgRect.top) / prevZoom - panY;
-          var scale = zoomLevel / prevZoom;
-          panX = panX - mouseX * (scale - 1);
-          panY = panY - mouseY * (scale - 1);
+          var mouseX = (e.clientX - imgRect.left) / prevTarget - panTargetX;
+          var mouseY = (e.clientY - imgRect.top) / prevTarget - panTargetY;
+          var scale = zoomTarget / prevTarget;
+          panTargetX = panTargetX - mouseX * (scale - 1);
+          panTargetY = panTargetY - mouseY * (scale - 1);
         } else {
-          panX = 0; panY = 0;
+          panTargetX = 0; panTargetY = 0;
         }
 
-        clampPan();
-        applyTransform();
-        wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
+        clampTargetPan();
+        startAnim();
 
         // Storm on every zoom change — converge on mouse
-        if (zoomLevel !== prevZoom) {
-          var _imgRect = img.getBoundingClientRect();
-          var _mx = e.clientX - _imgRect.left;
-          var _my = e.clientY - _imgRect.top;
-          // Convert screen coords to canvas coords (account for current zoom/pan)
-          var stormX = _mx / zoomLevel;
-          var stormY = _my / zoomLevel;
-          tryStorm(stormX, stormY);
-        }
+        var _imgRect = img.getBoundingClientRect();
+        var _mx = e.clientX - _imgRect.left;
+        var _my = e.clientY - _imgRect.top;
+        var stormX = _mx / zoomTarget;
+        var stormY = _my / zoomTarget;
+        tryStorm(stormX, stormY);
       }, { passive: false });
 
       // ---- MOUSE PAN WHEN ZOOMED ----
@@ -2635,6 +2672,8 @@
         if (isPanning) {
           isPanning = false;
           wrap.style.cursor = zoomLevel > 1 ? 'grab' : 'default';
+          panTargetX = panX;
+          panTargetY = panY;
         }
       });
 
@@ -2717,6 +2756,10 @@
         }
         if (e.touches.length === 0) {
           touchPanning = false;
+          // Sync targets after direct touch manipulation
+          zoomTarget = zoomLevel;
+          panTargetX = panX;
+          panTargetY = panY;
         }
         // Single tap fires arc on touch devices
         if (e.changedTouches.length === 1 && !touchPanning && zoomLevel <= 1) {
@@ -2743,24 +2786,24 @@
         var now = Date.now();
         if (now - lastTapTime < 300) {
           // Double tap
-          if (zoomLevel > 1) {
-            zoomLevel = 1; panX = 0; panY = 0;
-            applyTransform();
+          if (zoomTarget > 1) {
+            zoomTarget = 1; panTargetX = 0; panTargetY = 0;
+            startAnim();
             var _dt = e.touches[0];
             var _dr = img.getBoundingClientRect();
             tryStorm((_dt.clientX - _dr.left), (_dt.clientY - _dr.top));
           } else {
-            zoomLevel = 2.5;
+            zoomTarget = 2.5;
             var t = e.touches[0];
             var imgRect = img.getBoundingClientRect();
             var tapX = (t.clientX - imgRect.left);
             var tapY = (t.clientY - imgRect.top);
-            var cx = tapX / 1 - panX;
-            var cy = tapY / 1 - panY;
-            panX = -cx * (zoomLevel - 1);
-            panY = -cy * (zoomLevel - 1);
-            clampPan();
-            applyTransform();
+            var cx = tapX / 1 - panTargetX;
+            var cy = tapY / 1 - panTargetY;
+            panTargetX = -cx * (zoomTarget - 1);
+            panTargetY = -cy * (zoomTarget - 1);
+            clampTargetPan();
+            startAnim();
             tryStorm(tapX, tapY);
           }
           e.preventDefault();
